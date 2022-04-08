@@ -8,5 +8,6 @@ using std::cout;
 int main()
 {
     cout << "Does this work..Test2\n";
+    cout << "Test 3\n";
 }
 
