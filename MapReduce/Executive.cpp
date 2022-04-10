@@ -38,7 +38,7 @@ int main()
 		<< "\n>>>";
 	cin >> inputFileName >> intermediateFileName >> outputFileName;
 
-	//WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
+	WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
 
 }//End of Program
 
