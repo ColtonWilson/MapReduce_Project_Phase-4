@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include <fstream>
+#include <string>
 
 //Namespaces
 using std::cout;
@@ -20,6 +21,8 @@ using std::endl;
 using std::string;
 using std::ifstream;
 using std::ofstream;
+
+
 
 //default constructor
 FileManagement::FileManagement(){}
@@ -61,7 +64,16 @@ void FileManagement::fileCorrupt(const ifstream& fileToCheck)
 	}
 
 }
+void FileManagement::setData(ifstream& fileStream)
+{
+
+	std::getline(fileStream, lineOfData);
+
+	
+}
+
+const string FileManagement::getData(void) { return lineOfData; }
 
 void FileManagement::closeFile(ifstream& fileToClose) { fileToClose.close(); }
-const ifstream& FileManagement::getInputStreamSaved(void) { return inStreamSaved; }
+//const ifstream& FileManagement::getInputStreamSaved(void) { return inStreamSaved; }
 //const ofstream FileManagement::getOutputStreamSaved(void) { return outStreamSaved; }

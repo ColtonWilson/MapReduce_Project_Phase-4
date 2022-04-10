@@ -32,6 +32,8 @@ public:
 	//Pre-condition: None
 	//Post-conditon:outputFileLocation has value updated
 	//update value in outputFileLocation
+	void setRawData(const string& dataTaken);
+
 
 	//**********Getters**********
 	const string getInputFileLocation(void);
@@ -48,9 +50,10 @@ public:
 	//Return the value in outputFileLocation
 
 private:
-	string inputFileLocation{ "Unknown" }; //Data member to save location of input text file...just read from
+	string inputFileLocation{"Unknown"}; //Data member to save location of input text file...just read from
 	string intermediateFileLocation{ "Unknown" };//Data member to save location of intermediate file...will be written and then read
 	string outputFileLocation{ "Unknown" };//Data member to save location of the output file...will be written too
+	string rawData; //data member to save the raw data that will be taken from the input file. 
 
 };
 #endif

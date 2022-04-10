@@ -16,11 +16,11 @@ public:
 	//default constructor
 	Map();
 	//constructor with two parameters
-	Map(string fileName );
+	Map(string fileName,  vector<string> vec);
 	//**********Destructor*********
 	~Map();
-	void tokenize(void);
-	void write(string fileName, vector<char> vec);
+	vector<string> tokenize(vector<string>& vec);
+	void write(string& fileName, vector<string>& vec);
 
 
 private:

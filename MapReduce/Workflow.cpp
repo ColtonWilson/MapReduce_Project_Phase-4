@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 //#include <fstream>
 
@@ -23,6 +24,7 @@ using std::cout;
 using std::cin;
 using std::string;
 using std::ifstream;
+using std::vector;
 
 
 //default constructor
@@ -35,7 +37,9 @@ WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile)
 	inputFileToCheck.openFileInstream(inputFile);
 	FileManagement intermediateFileToWrite;
 	intermediateFileToWrite.openFileOutstream(intermediateFile);
-	inputFileToCheck.
+	setRawData(inputFileToCheck.getData());
+	cout << rawData;
+	
 
 }
 
@@ -48,6 +52,11 @@ void WorkFlow::setInputFileLocation(const string& userInputFile) { inputFileLoca
 void WorkFlow::setIntermediateFileLocation(const string& userIntermediateFile) { intermediateFileLocation = userIntermediateFile; }
 
 void WorkFlow::setOutputFileLocation(const string& userOutputFile) { outputFileLocation = userOutputFile; }
+
+void WorkFlow::setRawData(const string& dataTaken)
+{
+	rawData = dataTaken;
+}
 
 
 //**********Getters**********

@@ -40,9 +40,11 @@ public:
 	//Pre-condition: File Directory has been given
 	//Post-conditon:File has been closed
 	//Close the diractory files that user has given
+	void setData(ifstream& fileStream);
 
+	const string getData(void);
 	
-	const ifstream& getInputStreamSaved(void);
+	//const ifstream& getInputStreamSaved(void);
 	//Pre-condition: inputStreamSaved has a value
 	//Post-conditon: none
 	//Return the value in inputStreamSaved
@@ -53,8 +55,9 @@ public:
 
 
 private:
-	ifstream inStreamSaved;
+	//ifstream inStreamSaved;
 	//ofstream outStreamSaved;
+	string lineOfData{ "Unknown" };
 
 };
 #endif
