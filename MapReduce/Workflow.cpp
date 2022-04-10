@@ -14,6 +14,7 @@
 #include "Sorting.h"
 
 #include <iostream>
+#include <fstream>
 
 //#include <fstream>
 
@@ -21,6 +22,8 @@
 using std::cout;
 using std::cin;
 using std::string;
+using std::ifstream;
+
 
 //default constructor
 //TODO:Can to a try-catch to make sure actual string values are submitted
@@ -28,6 +31,11 @@ WorkFlow::WorkFlow(){}
 //WorkFlow constructor with three parameters
 WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile): inputFileLocation{inputFile}, intermediateFileLocation{intermediateFile}, outputFileLocation{outputFile}
 {
+	FileManagement inputFileToCheck;
+	inputFileToCheck.openFileInstream(inputFile);
+	FileManagement intermediateFileToWrite;
+	intermediateFileToWrite.openFileOutstream(intermediateFile);
+	inputFileToCheck.
 
 }
 

@@ -13,7 +13,14 @@
 class Map 
 {
 public:
-
+	//default constructor
+	Map();
+	//constructor with two parameters
+	Map(string fileName );
+	//**********Destructor*********
+	~Map();
+	void tokenize(void);
+	void write(string fileName, vector<char> vec);
 
 
 private:

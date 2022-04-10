@@ -10,6 +10,9 @@
 #include "Map.h"
 
 #include <iostream>
+#include <vector>
 
 //Namespaces
 using std::cout;
+using std::string;
+using std::vector;
