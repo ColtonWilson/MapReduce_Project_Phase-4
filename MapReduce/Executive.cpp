@@ -19,6 +19,7 @@ using std::string;
 
 int main()
 {
+
 	//Initate variables to hold the names of the directory locations
 	string inputFileName{ "Unknown" };
 	string intermediateFileName{ "Unknwon" };
@@ -41,4 +42,5 @@ int main()
 	WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
 
 }//End of Program
+
 
