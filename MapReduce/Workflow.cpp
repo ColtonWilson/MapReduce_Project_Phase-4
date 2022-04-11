@@ -16,8 +16,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
-//#include <fstream>
 
 //Namespaces
 using std::cout;
@@ -29,17 +29,18 @@ using std::vector;
 
 //default constructor
 //TODO:Can to a try-catch to make sure actual string values are submitted
-WorkFlow::WorkFlow(){}
+WorkFlow::WorkFlow() {}
 //WorkFlow constructor with three parameters
-WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile): inputFileLocation{inputFile}, intermediateFileLocation{intermediateFile}, outputFileLocation{outputFile}
+WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile) : inputFileLocation{ inputFile }, intermediateFileLocation{ intermediateFile }, outputFileLocation{ outputFile }
 {
 	FileManagement inputFileToCheck;
 	inputFileToCheck.openFileInstream(inputFile);
 	FileManagement intermediateFileToWrite;
 	intermediateFileToWrite.openFileOutstream(intermediateFile);
+	inputFileToCheck.setData();
 	setRawData(inputFileToCheck.getData());
 	cout << rawData;
-	
+
 
 }
 
@@ -65,5 +66,3 @@ const string WorkFlow::getInputFileLocation(void) { return inputFileLocation; }
 const string WorkFlow::getIntermediateFileLocation(void) { return intermediateFileLocation; }
 
 const string WorkFlow::getOutputFileLocation(void) { return outputFileLocation; }
-
-

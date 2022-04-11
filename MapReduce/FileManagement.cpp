@@ -25,18 +25,18 @@ using std::ofstream;
 
 
 //default constructor
-FileManagement::FileManagement(){}
+FileManagement::FileManagement() {}
 
 //**********Destructor*********
-FileManagement::~FileManagement(){}
+FileManagement::~FileManagement() {}
 
 void FileManagement::openFileInstream(const string& userFile)
 {
 	ifstream inStream;
 	inStream.open(userFile);
 	fileCorrupt(inStream);
-	
-	
+
+
 
 
 }
@@ -66,10 +66,10 @@ void FileManagement::fileCorrupt(const ifstream& fileToCheck)
 }
 void FileManagement::setData(ifstream& fileStream)
 {
-
+	
 	std::getline(fileStream, lineOfData);
 
-	
+
 }
 
 const string FileManagement::getData(void) { return lineOfData; }

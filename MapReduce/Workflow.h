@@ -8,6 +8,12 @@
 //Identifier
 #ifndef WORKFLOW_H
 #define WORKFLOW_H
+
+//Directives
+#include<string>
+
+using std::string;
+
 class WorkFlow
 {
 public:
@@ -15,7 +21,7 @@ public:
 	WorkFlow();
 	//WorkFlow constructor with three parameters
 	WorkFlow(string inputFile, string intermediateFile, string outputFile);
-	
+
 	//**********Destructor*********
 	~WorkFlow();
 
@@ -50,10 +56,10 @@ public:
 	//Return the value in outputFileLocation
 
 private:
-	string inputFileLocation{"Unknown"}; //Data member to save location of input text file...just read from
+	string inputFileLocation{ "Unknown" }; //Data member to save location of input text file...just read from
 	string intermediateFileLocation{ "Unknown" };//Data member to save location of intermediate file...will be written and then read
 	string outputFileLocation{ "Unknown" };//Data member to save location of the output file...will be written too
-	string rawData; //data member to save the raw data that will be taken from the input file. 
+	string rawData{"Unknown"}; //data member to save the raw data that will be taken from the input file. 
 
 };
 #endif
