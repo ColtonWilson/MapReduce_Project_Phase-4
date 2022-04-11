@@ -9,18 +9,22 @@
 //Identifier
 #ifndef MAP_H
 #define MAP_H
+//Directives
+#include<string>
 
-class Map 
+using std::string;
+
+class Map
 {
 public:
 	//default constructor
 	Map();
 	//constructor with two parameters
-	Map(string fileName,  vector<string> vec);
+	Map(string fileName, string vec);
 	//**********Destructor*********
 	~Map();
-	vector<string> tokenize(vector<string>& vec);
-	void write(string& fileName, vector<string>& vec);
+	string tokenize(string& vec);
+	void write(string& fileName, string vec);
 
 
 private:

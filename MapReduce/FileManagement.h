@@ -12,6 +12,10 @@
 
 //Directives
 #include "Workflow.h"
+#include <fstream>
+
+using std::ifstream;
+using std::ofstream;
 
 
 class FileManagement : public WorkFlow
@@ -22,7 +26,7 @@ public:
 
 	//**********Destructor*********
 	~FileManagement();
-	
+
 	//**********Member Functions**********
 	void openFileInstream(const string& userFile);
 	//Pre-condition: File Directorys has been given
@@ -43,7 +47,7 @@ public:
 	void setData(ifstream& fileStream);
 
 	const string getData(void);
-	
+
 	//const ifstream& getInputStreamSaved(void);
 	//Pre-condition: inputStreamSaved has a value
 	//Post-conditon: none

@@ -11,6 +11,10 @@
 
 #include <iostream>
 #include <vector>
+//Directives
+#include<string>
+
+using std::string;
 
 //Namespaces
 using std::cout;
@@ -18,10 +22,10 @@ using std::string;
 using std::vector;
 
 //default constructor
-Map::Map(){}
+Map::Map() {}
 //constructor with two parameters
-Map::Map(string fileName, vector<string> vec){}
+Map::Map(string fileName, string vec) {}
 //**********Destructor*********
-Map::~Map(){}
-vector<string> Map::tokenize(vector<string>& vec){}
-void Map::write(string& fileName, vector<string>& vec){}
+Map::~Map() {}
+string Map::tokenize(string& vec) { return "Unknwon"; }
+void Map::write(string& fileName, string vec) {}
