@@ -10,6 +10,18 @@
 #include "Map.h"
 
 #include <iostream>
+#include <vector>
 
 //Namespaces
 using std::cout;
+using std::string;
+using std::vector;
+
+//default constructor
+Map::Map(){}
+//constructor with two parameters
+Map::Map(string fileName, vector<string> vec){}
+//**********Destructor*********
+Map::~Map(){}
+vector<string> Map::tokenize(vector<string>& vec){}
+void Map::write(string& fileName, vector<string>& vec){}

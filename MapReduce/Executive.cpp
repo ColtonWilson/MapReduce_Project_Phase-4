@@ -8,8 +8,14 @@
 
 //Directives
 #include "Workflow.h"
+#include "FileManagement.h"
+#include "Map.h"
+#include "Reduce.h"
+#include "Sorting.h"
+#include "Workflow.h"
 
 #include <iostream>
+#include <string>
 
 
 
