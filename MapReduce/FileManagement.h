@@ -55,7 +55,7 @@ public:
 
 	void readFromFile(ifstream& fileStream, string& data);
 
-	void clearFile(ofstream& fileStream);
+	void clearFile(ofstream& fileStream, const string& userFile);
 
 
 private:

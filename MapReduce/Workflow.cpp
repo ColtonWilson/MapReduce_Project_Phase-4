@@ -41,8 +41,7 @@ WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile)
 	FileManagement FileStreamSystem;
 	FileStreamSystem.openFileInstream(inputFileStream, inputFile);
 	FileStreamSystem.fileCorrupt(inputFileStream);
-	FileStreamSystem.clearFile(intermediateFileStream);
-	FileStreamSystem.closeOutputFile(intermediateFileStream);
+	FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
 	
 	string data{ "Unknown" };
 	while (data !=  "1")
@@ -54,6 +53,10 @@ WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile)
 		}
 
 	}
+	
+
+
+
 	
 	
 	

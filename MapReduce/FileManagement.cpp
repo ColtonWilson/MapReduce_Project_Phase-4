@@ -86,6 +86,10 @@ void FileManagement::readFromFile( ifstream& fileStream, string& data)
 
 
 
-void FileManagement::clearFile(ofstream& fileStream) { fileStream.clear(); }
+void FileManagement::clearFile(ofstream& fileStream, const string& userFile) 
+{
+	fileStream.open(userFile); 
+	closeOutputFile(fileStream);
+}
 void FileManagement::closeInputFile(ifstream& fileToClose) { fileToClose.close(); }
 void FileManagement::closeOutputFile(ofstream& fileToClose){ fileToClose.close(); }
