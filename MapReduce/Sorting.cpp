@@ -181,7 +181,7 @@ void Sorting::format() {
 		wordTemp1 = *iteratorWordList1;
 
 		// write the output to the text file in the proper format.
-		outputFileStreamObj << "(\"" << wordTemp1.key << "\"), [";
+		outputFileStreamObj << "(\"" << wordTemp1.key << "\", [";
 
 		// output the correct number of 1's.
 		for (int i = 0; i < wordTemp1.numberOfOccurrences - 1; i++) {
@@ -189,7 +189,7 @@ void Sorting::format() {
 		}
 
 		// send the last 1 and ending bracket.
-		outputFileStreamObj << "1]";
+		outputFileStreamObj << "1])";
 
 		// increment the iterator.
 		iteratorWordList1++;
