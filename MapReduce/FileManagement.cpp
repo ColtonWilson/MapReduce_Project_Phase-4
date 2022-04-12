@@ -8,6 +8,8 @@
 /*File Management*/
 //Directives
 #include "FileManagement.h"
+#include "Workflow.h"
+
 
 #include <iostream>
 
@@ -16,7 +18,6 @@
 
 //Namespaces
 using std::cout;
-using std::cin;
 using std::endl;
 using std::string;
 using std::ifstream;
@@ -30,27 +31,22 @@ FileManagement::FileManagement() {}
 //**********Destructor*********
 FileManagement::~FileManagement() {}
 
-void FileManagement::openFileInstream(const string& userFile)
+
+void FileManagement::openFileInstream(ifstream& fileStream, const string userFile)
 {
-	ifstream inStream;
-	inStream.open(userFile);
-	fileCorrupt(inStream);
-
-
-
+	fileStream.open(userFile);
 
 }
-void FileManagement::openFileOutstream(const string& userFile)
-{
-	ofstream outStream;
-	outStream.open(userFile);
-
+void FileManagement::openFileOutstream(ofstream& fileStream, const string& userFile)
+{	
+	fileStream.open(userFile, std::ios_base::app);
+	
 }
 
-void FileManagement::fileCorrupt(const ifstream& fileToCheck)
+void FileManagement::fileCorrupt(ifstream& fileStream)
 {
 	//Check to see if file failed to open
-	if (fileToCheck.fail())
+	if (fileStream.fail())
 	{
 		//If true, print fail to screen and EXIT
 		cout << "Input file failed to open" << endl;
@@ -64,16 +60,32 @@ void FileManagement::fileCorrupt(const ifstream& fileToCheck)
 	}
 
 }
-void FileManagement::setData(ifstream& fileStream)
-{
-	
-	std::getline(fileStream, lineOfData);
 
+
+//<-----------------------------Starting updates---------> Going to set this up to only access to read and write
+void FileManagement::writeToTempFile(ofstream& fileStream, const string& data)
+{
+	//("jump", 1)
+	fileStream << "(\"";
+	fileStream << data;
+	fileStream << "\", 1)\n";
+}
+
+void FileManagement::readFromFile( ifstream& fileStream, string& data)
+{
+	if (fileStream.eof())
+	{
+		data = "1";
+	}
+	std::getline(fileStream, data);
 
 }
 
-const string FileManagement::getData(void) { return lineOfData; }
 
-void FileManagement::closeFile(ifstream& fileToClose) { fileToClose.close(); }
-//const ifstream& FileManagement::getInputStreamSaved(void) { return inStreamSaved; }
-//const ofstream FileManagement::getOutputStreamSaved(void) { return outStreamSaved; }
+
+
+
+
+void FileManagement::clearFile(ofstream& fileStream) { fileStream.clear(); }
+void FileManagement::closeInputFile(ifstream& fileToClose) { fileToClose.close(); }
+void FileManagement::closeOutputFile(ofstream& fileToClose){ fileToClose.close(); }

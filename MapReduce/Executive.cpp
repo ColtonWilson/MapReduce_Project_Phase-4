@@ -16,12 +16,15 @@
 
 #include <iostream>
 #include <string>
+#include<boost/tokenizer.hpp>
 
 
 
 using std::cout;
 using std::cin;
 using std::string;
+
+
 
 int main()
 {
@@ -43,9 +46,17 @@ int main()
 	//Standalone command-line to get user text file input and output directory location
 	cout << "\nInsert the input directory, intermediate directory, and output directory locations."
 		<< "\n>>>";
-	cin >> inputFileName >> intermediateFileName >> outputFileName;
+	//cin >> inputFileName >> intermediateFileName >> outputFileName;
 
-	WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
+	//WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
+	WorkFlow workFlow("input.txt", "intermediate.txt", "output.txt");
+
+	/*string s = "This is,  a test";
+	boost::tokenizer<> tok(s);
+	for (boost::tokenizer<>::iterator beg = tok.begin(); beg != tok.end(); ++beg) {
+		cout << *beg << "\n";
+	}*/
+
 
 }//End of Program
 

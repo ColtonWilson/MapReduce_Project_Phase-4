@@ -18,6 +18,7 @@ using std::ifstream;
 using std::ofstream;
 
 
+
 class FileManagement : public WorkFlow
 {
 public:
@@ -28,40 +29,37 @@ public:
 	~FileManagement();
 
 	//**********Member Functions**********
-	void openFileInstream(const string& userFile);
+	//template < typename T >
+	void openFileInstream(ifstream& fileStream, const string userFile);
 	//Pre-condition: File Directorys has been given
 	//Post-conditon:Files have been opened as an instream
 	//Open the diractory files that user has given and read
-	void openFileOutstream(const string& userFile);
+	void openFileOutstream(ofstream& fileStream, const string& userFile);
 	//Pre-condition: File Directorys has been given
 	//Post-conditon:Files have been opened as an outstream
 	//Open the diractory files that user has given and read
-	void fileCorrupt(const ifstream& fileToCheck);
+	
+	void fileCorrupt(ifstream& fileStream);
 	//Pre-condition: File Directorys has been given
 	//Post-conditon:Failure message will print to screen if file open fails. 
 	//Check to see if file failed to open
-	void closeFile(ifstream& fileToClose);
+	void closeInputFile(ifstream& fileToClose);
 	//Pre-condition: File Directory has been given
 	//Post-conditon:File has been closed
 	//Close the diractory files that user has given
-	void setData(ifstream& fileStream);
+	void closeOutputFile(ofstream& fileToClose);
+	//Pre-condition: File Directory has been given
+	//Post-conditon:File has been closed
+	//Close the diractory files that user has given
+	void writeToTempFile(ofstream& fileStream, const string& data);
 
-	const string getData(void);
+	void readFromFile(ifstream& fileStream, string& data);
 
-	//const ifstream& getInputStreamSaved(void);
-	//Pre-condition: inputStreamSaved has a value
-	//Post-conditon: none
-	//Return the value in inputStreamSaved
-	//const ofstream getOutputStreamSaved(void);
-	//Pre-condition: outputStreamSaved has a value
-	//Post-conditon: none
-	//Return the value in outputStreamSaved
+	void clearFile(ofstream& fileStream);
 
 
 private:
-	//ifstream inStreamSaved;
-	//ofstream outStreamSaved;
-	string lineOfData{ "Unknown" };
+	
 
 };
 #endif

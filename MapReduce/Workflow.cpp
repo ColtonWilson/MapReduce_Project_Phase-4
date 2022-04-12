@@ -33,13 +33,32 @@ WorkFlow::WorkFlow() {}
 //WorkFlow constructor with three parameters
 WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile) : inputFileLocation{ inputFile }, intermediateFileLocation{ intermediateFile }, outputFileLocation{ outputFile }
 {
-	FileManagement inputFileToCheck;
-	inputFileToCheck.openFileInstream(inputFile);
-	FileManagement intermediateFileToWrite;
-	intermediateFileToWrite.openFileOutstream(intermediateFile);
-	inputFileToCheck.setData();
-	setRawData(inputFileToCheck.getData());
-	cout << rawData;
+	
+
+	ifstream inputFileStream;
+	ofstream intermediateFileStream;
+
+	FileManagement FileStreamSystem;
+	FileStreamSystem.openFileInstream(inputFileStream, inputFile);
+	FileStreamSystem.fileCorrupt(inputFileStream);
+	FileStreamSystem.clearFile(intermediateFileStream);
+	FileStreamSystem.closeOutputFile(intermediateFileStream);
+	
+	string data{ "Unknown" };
+	while (data !=  "1")
+	{
+		FileStreamSystem.readFromFile(inputFileStream, data);
+		if (data != "1")
+		{
+			Map toTempFile(intermediateFile, data);
+		}
+
+	}
+	
+	
+	
+
+	
 
 
 }
@@ -54,9 +73,9 @@ void WorkFlow::setIntermediateFileLocation(const string& userIntermediateFile) {
 
 void WorkFlow::setOutputFileLocation(const string& userOutputFile) { outputFileLocation = userOutputFile; }
 
-void WorkFlow::setRawData(const string& dataTaken)
+void WorkFlow::setFirstAttempt(const bool& update)
 {
-	rawData = dataTaken;
+	firstAttempt = update;
 }
 
 
@@ -66,3 +85,5 @@ const string WorkFlow::getInputFileLocation(void) { return inputFileLocation; }
 const string WorkFlow::getIntermediateFileLocation(void) { return intermediateFileLocation; }
 
 const string WorkFlow::getOutputFileLocation(void) { return outputFileLocation; }
+
+const bool WorkFlow::getFirstAttempt(void) { return firstAttempt; }
