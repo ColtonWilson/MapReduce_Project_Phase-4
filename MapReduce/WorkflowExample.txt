@@ -1,0 +1,94 @@
+#include "Reduce.h"
+#include "Sorting.h"
+
+// main function for testing sorting and reduce classes.
+int main() {
+	
+	// declare and initialize local variables.
+	string intermediateFilePath = "intermediateFilePath.txt"; // intermediate file path
+	string outputFilePath = "outputFilePath.txt";
+	string* intermediateFilePathPntr = &intermediateFilePath;
+	string* outputFilePathPntr = &outputFilePath;
+	
+	// initialize local variables
+	ofstream intermediateFile;
+
+	// open the file for editing.
+	intermediateFile.open(intermediateFilePath);
+
+	// write the output to the intermediate text file in the proper format.
+	intermediateFile << "(\"apple\", 1), (\"apple\", 1), (\"ale\", 1), (\"ale\", 1), (\"a\", 1), (\"a\", 1)\n";
+	intermediateFile << "(\"apple\", 1), (\"apple\", 1), (\"ale\", 1), (\"ale\", 1), (\"a\", 1), (\"a\", 1), (\"apple\", 1), (\"apple\", 1), (\"ale\", 1), (\"ale\", 1), (\"a\", 1), (\"a\", 1), (\"apple\", 1), (\"apple\", 1), (\"ale\", 1), (\"ale\", 1), (\"a\", 1), (\"a\", 1)\n";
+
+	// close the file.
+	intermediateFile.close();
+
+	// make sure output file is empty by opening and closing it using an output file stream object.
+	ofstream outputFile;
+
+	// open the outputfile.
+	outputFile.open(outputFilePath);
+
+	// close the output file.
+	outputFile.close();
+	
+	// create an instance of the Sorting class.
+	Sorting sortingObj(intermediateFilePathPntr); 
+
+	// create an instance of the Reduce class.
+	Reduce reduceObj(outputFilePathPntr);
+
+	// format the file.
+	sortingObj.format();
+
+	// Create local variables. Input file stream object
+	ifstream inputFileStreamObj;
+	string line;
+	string entryString{ NULL };
+	string* entryStrPntr{ NULL };
+
+	// create a delimiter to find the following string: ")"
+	string closedParenthesis{ ")" };
+	string openParenthesis{ "(" };
+	size_t openPos{ NULL };
+	size_t closedPos{ NULL };
+
+	// open the intermediate file
+	inputFileStreamObj.open(*intermediateFilePathPntr);
+
+	// assign the entry string pointer
+	entryStrPntr = &entryString;
+
+	// get the first line from the file.
+	while (getline(inputFileStreamObj, line)) {
+
+		// find the position of the first open parenthesis
+		openPos = line.find(openParenthesis);
+
+		// offset for the find method of the string class.
+		size_t offset{ 0 };
+
+		// while there are words in this line, keep extracting them.
+		while (openPos != string::npos) {
+
+			// find the position of the closed parenthesis
+			closedPos = line.find(closedParenthesis, offset);
+
+			// if the open and closed parentheses were found, pass the substring to the reduce class.
+			if ((openPos != string::npos) && (closedPos != string::npos)) {
+
+				// extract the entry. 
+				entryString = line.substr(openPos, (closedPos - openPos) + 1);
+				
+				// pass the string to the reduce method from the Reduce class.
+				reduceObj.reduce(entryStrPntr);
+			}
+
+			// update the offset into the line for the next search.
+			offset = closedPos + 1;
+
+			// Find the position of the next open parenthesis. 
+			openPos = line.find(openParenthesis, offset);
+		}
+	}
+}
