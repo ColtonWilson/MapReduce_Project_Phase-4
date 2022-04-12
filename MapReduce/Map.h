@@ -11,8 +11,13 @@
 #define MAP_H
 //Directives
 #include<string>
+#include <vector>
+#include<boost/tokenizer.hpp>
 
 using std::string;
+using std::vector;
+using boost::tokenizer;
+
 
 class Map
 {
@@ -20,15 +25,17 @@ public:
 	//default constructor
 	Map();
 	//constructor with two parameters
-	Map(string fileName, string vec);
+	Map(string& fileName, string& lineOfData);
 	//**********Destructor*********
 	~Map();
-	string tokenize(string& vec);
-	void write(string& fileName, string vec);
+	void tokenize(string& fileName, string& vec);
+	void writeToBuffer(string& vec);
+	void exportt(string& fileName, tokenizer<>::iterator& word);
+	
 
 
 private:
-
+	vector<string> buffer; //data memeber to act as a memory
 
 };
 

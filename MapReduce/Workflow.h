@@ -14,6 +14,9 @@
 
 using std::string;
 
+
+
+
 class WorkFlow
 {
 public:
@@ -38,7 +41,7 @@ public:
 	//Pre-condition: None
 	//Post-conditon:outputFileLocation has value updated
 	//update value in outputFileLocation
-	void setRawData(const string& dataTaken);
+	void setFirstAttempt(const bool& update);
 
 
 	//**********Getters**********
@@ -54,12 +57,16 @@ public:
 	//Pre-condition: outputFileLocation has a value
 	//Post-conditon: none
 	//Return the value in outputFileLocation
+	const bool getFirstAttempt(void);
+
+	
 
 private:
 	string inputFileLocation{ "Unknown" }; //Data member to save location of input text file...just read from
 	string intermediateFileLocation{ "Unknown" };//Data member to save location of intermediate file...will be written and then read
 	string outputFileLocation{ "Unknown" };//Data member to save location of the output file...will be written too
 	string rawData{"Unknown"}; //data member to save the raw data that will be taken from the input file. 
+	bool firstAttempt{true};
 
 };
 #endif
