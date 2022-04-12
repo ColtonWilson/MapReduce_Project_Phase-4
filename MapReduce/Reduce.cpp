@@ -46,7 +46,7 @@ void Reduce::setOutputFilePath(string* inputOutputFilePath) {
 
 // sums up the iterators and calls the export method.
 // inputString is in form ("apple", [1, 1, 1, 1])
-void Reduce::reduce(string inputString) {
+void Reduce::reduce(string* inputString) {
 
 	// create a delimiter to find. Find the open bracket "[" character.
 	string openBracket = "\", [";
@@ -55,16 +55,16 @@ void Reduce::reduce(string inputString) {
 	string closedBracket = "])";
 
 	// create a substring of just the iterator (all 1's).
-	string iterator = inputString.substr(inputString.find(openBracket), inputString.find(closedBracket));
+	string iterator = (*inputString).substr((*inputString).find(openBracket), (*inputString).find(closedBracket));
 
 	// calculate the number of 1's
 	size_t numberOfOnes = (iterator.length() - 4) / 3;
 
 	// find the position of the "\", [" string.
-	size_t position = inputString.find("\", [");
+	size_t position = (*inputString).find("\", [");
 
 	// extract the key
-	string key = inputString.substr(2, position - 2);
+	string key = (*inputString).substr(2, position - 2);
 
 	// export the data to the output file path.
 	exportt(key, numberOfOnes);
@@ -77,7 +77,7 @@ void Reduce::exportt(string key, size_t sum) {
 	ofstream outputFile;
 
 	// open the file for editing.
-	outputFile.open(outputFilePath);
+	outputFile.open(outputFilePath, ios_base::app);
 
 	// write the output to the text file in the proper format.
 	outputFile << "(\"" << key << "\"), " << to_string(sum) << "\n";
