@@ -1,25 +1,30 @@
-/*Colton Wilson and Anthony Redamonti
-*CSE 687- Object Oriented Design
-*Syracuse University
-*MapReduce - Phase #1
-*04/07/22
-*This program contains the 'main' function.......TODO......
+/*
+Anthony Redamonti & Colton Wilson
+Professor Scott Roueche
+CSE 687 Object Oriented Design
+Syracuse University
+Project 1
+4/9/2022
+
+Executive.cpp
+
+Below is Executive.cpp file. 
+This file has the main() function.
+It will print to screen a banner message for the user.
+Prompt the user to input three directories: input, temporary, and output.
+It will then create a Workflow class object with these file directories.  
+
+
 */
 
 //Directives
 #include "Workflow.h"
-#include "FileManagement.h"
-#include "Map.h"
-#include "Reduce.h"
-#include "Sorting.h"
-#include "Workflow.h"
 
 #include <iostream>
 #include <string>
-#include<boost/tokenizer.hpp>
 
 
-
+//Namespaces
 using std::cout;
 using std::cin;
 using std::string;
@@ -49,14 +54,7 @@ int main()
 	//cin >> inputFileName >> intermediateFileName >> outputFileName;
 
 	//WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
-	WorkFlow workFlow("input.txt", "intermediate.txt", "output.txt");
-
-	/*string s = "This is,  a test";
-	boost::tokenizer<> tok(s);
-	for (boost::tokenizer<>::iterator beg = tok.begin(); beg != tok.end(); ++beg) {
-		cout << *beg << "\n";
-	}*/
-
+	WorkFlow workFlow("input.txt", "intermediate.txt", "output.txt");//Test example of inputes
 
 }//End of Program
 
