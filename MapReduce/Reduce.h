@@ -31,6 +31,7 @@ to the output file path destination.
 using std::ofstream;
 using std::string;
 using std::to_string;
+using std::ios_base;
 
 class Reduce {
 public: 
@@ -49,7 +50,7 @@ public:
 	void setOutputFilePath(string* outputFilePath);
 
 	// sums up the iterators and calls the export method.
-	void reduce(string inputString);
+	void reduce(string* inputString);
 
 private:
 
