@@ -37,6 +37,15 @@ public:
 	//**********Destructor*********
 	~WorkFlow();
 
+	//**********Member Function**********
+	void separateOutputPath(const string userInputFile, const string& fileType);
+	//Pre-condition: outputFileLocation has been given
+	//Post-condition: outputFileDirectoryLocation data memeber will have a value
+	//Separates the directory path from the file name
+	bool checkIfFIle(const string& userInputFile);
+
+	bool checkOfFIle(const string& userInputFile);
+
 	//**********Setters**********
 	void setInputFileLocation(const string& userInputFile);
 	//Pre-condition: None
@@ -50,7 +59,14 @@ public:
 	//Pre-condition: None
 	//Post-conditon:outputFileLocation has value updated
 	//update value in outputFileLocation
-
+	void setIntermediateFileDirectoryLocation(const string& userOutputFile);
+	//Pre-condition: None
+	//Post-conditon:IntermediateFileDirectoryLocation has value updated
+	//update value in IntermediateFileDirectoryLocation
+	void setOutputFileDirectoryLocation(const string& userOutputFile);
+	//Pre-condition: None
+	//Post-conditon:outputFileDirectoryLocation has value updated
+	//update value in outputFileDirectoryLocation
 
 	//**********Getters**********
 	const string getInputFileLocation(void);
@@ -65,13 +81,26 @@ public:
 	//Pre-condition: outputFileLocation has a value
 	//Post-conditon: none
 	//Return the value in outputFileLocation
+	const string getIntermediateFileDirectoryLocation(void);
+	//Pre-condition: IntermediateFileDirectoryLocation has a value
+	//Post-conditon: none
+	//Return the value in IntermediateFileDirectoryLocation
+	const string getOutputFileDirectoryLocation(void);
+	//Pre-condition: outputFileDirectoryLocation has a value
+	//Post-conditon: none
+	//Return the value in outputFileDirectoryLocation
 
 	
 
 private:
 	string inputFileLocation{ "Unknown" }; //Data member to save location of input text file...just read from
 	string intermediateFileLocation{ "Unknown" };//Data member to save location of intermediate file...will be written and then read
+	string intermediateFileDirectoryLocation{ "Unknown" }; //Data member to save directory information for intermediate file
 	string outputFileLocation{ "Unknown" };//Data member to save location of the output file...will be written too
+	string outputFileDirectoryLocation{ "Unknown" }; //Data member to save directory information for output file
+	bool validInputFile{ false };
+	bool validIntermediateFile{ false };
+	bool validOutputFile{ false };
 
 };
 #endif

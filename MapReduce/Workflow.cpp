@@ -8,6 +8,8 @@ Project 1
 
 Workflow.cpp
 
+---Note: This file does include the BOOST library in order to compile.
+
 Below is Workflow.cpp, which is called by the  main() in Executive.cpp.
 The constructor takes three string direcotry names and saves the strings into private data memebrs.
 The constructior will then tie together all the header files with supporting logic.
@@ -22,6 +24,11 @@ The public data member functions are setters and getters for each data member.
 #include "Map.h"
 #include "Reduce.h"
 #include "Sorting.h"
+#include "NotValidInputFile.h"
+#include "NotValidOutputFile.h"
+
+#include <boost/filesystem.hpp>
+
 
 #include <iostream>
 #include <fstream>
@@ -31,16 +38,96 @@ The public data member functions are setters and getters for each data member.
 //Namespaces
 using std::cout;
 using std::cin;
+using std::endl;
 using std::string;
 using std::ifstream;
 using std::vector;
 
 
+
 //default constructor
 WorkFlow::WorkFlow() {}
 //WorkFlow constructor with three parameters
-WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile) : inputFileLocation{ inputFile }, intermediateFileLocation{ intermediateFile }, outputFileLocation{ outputFile }
+WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile)
 {
+	
+	
+
+	//----------------Verify if file directories are valid--------------
+	
+	//Verify if the input direcotry given is valid
+	//Keep asking until valid file is given
+	while (validInputFile == false)
+	{
+		//try block to attempt to the input file directory
+		try {
+			setInputFileLocation(inputFile);
+		}
+		//If not valid then throw exception
+		catch (const NotValidInputFile& notValidFileException) {
+			cout << "Exception occurred: "
+				<< notValidFileException.what() << endl;
+		}
+		//Ask user for another input file directory
+		if (validInputFile == false)
+		{
+			cout << "\nPlease enter a valid input file directory.\n"
+				<< "Input File Directory: >>> ";
+			cin >> inputFile;
+		}
+
+	}
+
+	//Get path to intermediate output directory
+	separateOutputPath(intermediateFile, "intermediate");
+	while (validIntermediateFile == false)
+	{
+		//try block to attempt to the input file directory
+		try {
+			setIntermediateFileLocation(intermediateFile);
+		}
+		//If not valid then throw exception
+		catch (const NotValidInputFile& notValidFileException) {
+			cout << "Exception occurred: "
+				<< notValidFileException.what() << endl;
+		}
+		//Ask user for another input file directory
+		if (validIntermediateFile == false)
+		{
+			cout << "\nPlease enter a valid temporary intermediate file directory.\n"
+				<< "Intermediate File Directory: >>> ";
+			cin >> intermediateFile;
+			//separateOutputPath(intermediateFile, "intermediate");
+		}
+
+	}
+
+	//Get path to final output directory
+	separateOutputPath(outputFile, "output");
+	while (validOutputFile == false)
+	{
+		//try block to attempt to the input file directory
+		try {
+			setOutputFileLocation(getOutputFileDirectoryLocation());
+		}
+		//If not valid then throw exception
+		catch (const NotValidInputFile& notValidFileException) {
+			cout << "Exception occurred: "
+				<< notValidFileException.what() << endl;
+		}
+		//Ask user for another input file directory
+		if (validOutputFile == false)
+		{
+			cout << "\nPlease enter a valid final output file directory.\n"
+				<< "Output File Directory: >>> ";
+			cin >> outputFile;
+			separateOutputPath(outputFile, "output");
+		}
+
+	}
+	
+	
+
 	//<-----------------Part 1------------------------------------------>
 	// Writing from input file to intermediate file
 	//Create an input and output stream class
@@ -144,18 +231,156 @@ WorkFlow::WorkFlow(string inputFile, string intermediateFile, string outputFile)
 			openPos = line.find(openParenthesis, offset);
 		}
 	}
-	
+	//Print SUCCESS file to output directory
+	FileStreamSystem.openFileOutstream(outputFileStream, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
+	FileStreamSystem.closeOutputFile(outputFileStream);
 }
 
 //**********Destructor*********
 WorkFlow::~WorkFlow() {}
 
+//**********Member Function**********
+// Get File Name from a Path with or without extension
+void WorkFlow::separateOutputPath(const string userInputFile, const string& fileType)
+{
+	// Create a Path object from File Path
+	boost::filesystem::path pathObj(userInputFile);
+
+	// Check if file has stem i.e. filename without extension
+	if (pathObj.has_stem())
+	{
+		if (fileType == "intermediate")
+		{
+			// set the path of the user submitted file
+			boost::filesystem::path p(userInputFile);
+			//get the parent path
+			boost::filesystem::path dir = p.parent_path();
+			//set data memebr as a string to remeber the path
+			setIntermediateFileDirectoryLocation(dir.string());
+			//setIntermediateFileLocation(userInputFile);
+
+		}
+		else
+		{
+			// set the path of the user submitted file
+			boost::filesystem::path p(userInputFile);
+			//get the parent path
+			boost::filesystem::path dir = p.parent_path();
+			//set data memebr as a string to remeber the path
+			setOutputFileDirectoryLocation(dir.string());
+			//setOutputFileLocation(userInputFile);
+		}
+		
+			
+
+		
+		
+	}
+	else
+	{
+		/*if (fileType == "intermediate")
+		{
+			// set the file name with extension from path object
+			setIntermediateFileLocation(userInputFile);
+		}
+		else
+		{
+			// set the file name with extension from path object
+			setOutputFileLocation(userInputFile);
+		}*/
+		
+
+	}
+
+
+}
+
+//Check if the input file is valid
+bool WorkFlow::checkIfFIle(const string& userInputFile)
+{
+	// Create a Path object from given path string
+	boost::filesystem::path pathObj(userInputFile);
+	// Check if path exists and is of a regular file
+	if (!boost::filesystem::exists(pathObj) && !boost::filesystem::is_regular_file(pathObj))
+		return true;
+
+	return false;
+}
+
+//Check if the output file is valid
+bool WorkFlow::checkOfFIle(const string& userInputFile)
+{
+	// Create a Path object from given path string
+	boost::filesystem::path pathObj(userInputFile);
+	// Check if path exists and is of a regular file
+	if (!boost::filesystem::exists(pathObj) && !boost::filesystem::is_directory(pathObj))
+		return true;
+
+	return false;
+}
 //**********Setters**********
-void WorkFlow::setInputFileLocation(const string& userInputFile) { inputFileLocation = userInputFile; }
+void WorkFlow::setInputFileLocation(const string& userInputFile) 
+{
+	 
+	//Verify input call to checkIfFile()
+	if (checkIfFIle(userInputFile))
+	{
+		//If return true then thro exception
+		throw NotValidInputFile{}; //terminate function
+	}
+	//If false then insert into inputFileLocation 
+	else
+	{
+		inputFileLocation = userInputFile;
+		//update validInputFile
+		validInputFile = true;
 
-void WorkFlow::setIntermediateFileLocation(const string& userIntermediateFile) { intermediateFileLocation = userIntermediateFile; }
+	}
 
-void WorkFlow::setOutputFileLocation(const string& userOutputFile) { outputFileLocation = userOutputFile; }
+}
+
+void WorkFlow::setIntermediateFileLocation(const string& userIntermediateFile) 
+{
+	//Verify input call to checkIfFile()
+	if (checkOfFIle(userIntermediateFile))
+	{
+		//If return true then thro exception
+		throw NotValidOutputFile{}; //terminate function
+	}
+	//If false then insert into inputFileLocation 
+	else
+	{
+		//intermediateFileLocation = userIntermediateFile;
+		separateOutputPath(userIntermediateFile, "intermediate");
+		//update validInputFile
+		validIntermediateFile = true;
+
+	}
+	
+}
+
+void WorkFlow::setOutputFileLocation(const string& userOutputFile) 
+{ 
+	//Verify input call to checkIfFile()
+	if (checkOfFIle(userOutputFile))
+	{
+		//If return true then thro exception
+		throw NotValidInputFile{}; //terminate function
+	}
+	//If false then insert into inputFileLocation 
+	else
+	{
+		outputFileLocation = userOutputFile;
+		//update validInputFile
+		validInputFile = true;
+
+	}
+	
+
+}
+void WorkFlow::setIntermediateFileDirectoryLocation(const string& userOutputFile) { intermediateFileDirectoryLocation = userOutputFile; }
+void WorkFlow::setOutputFileDirectoryLocation(const string& userOutputFile) { outputFileDirectoryLocation = userOutputFile; }
+
 
 //**********Getters**********
 const string WorkFlow::getInputFileLocation(void) { return inputFileLocation; }
@@ -163,4 +388,9 @@ const string WorkFlow::getInputFileLocation(void) { return inputFileLocation; }
 const string WorkFlow::getIntermediateFileLocation(void) { return intermediateFileLocation; }
 
 const string WorkFlow::getOutputFileLocation(void) { return outputFileLocation; }
+
+const string WorkFlow::getIntermediateFileDirectoryLocation(void) { return intermediateFileDirectoryLocation; }
+
+const string WorkFlow::getOutputFileDirectoryLocation(void) { return outputFileDirectoryLocation; }
+
 

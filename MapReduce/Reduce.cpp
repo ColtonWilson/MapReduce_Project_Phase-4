@@ -21,6 +21,7 @@ to the output file path destination.
 
 // Directives
 #include "Reduce.h"
+#include "FileManagement.h"
 
 // Reduce constructor
 Reduce::Reduce(string* inputOutputFilePath) {
@@ -73,15 +74,14 @@ void Reduce::reduce(string* inputString) {
 // export the data to the output file path (one entry at a time)
 void Reduce::exportt(string key, size_t sum) {
 	
-	// initialize local variables
-	ofstream outputFile;
-
-	// open the file for editing.
-	outputFile.open(outputFilePath, ios_base::app);
-
-	// write the output to the text file in the proper format.
-	outputFile << "(\"" << key << "\"), " << to_string(sum) << "\n";
-
-	// close the file.
-	outputFile.close();
+	//Initiate an output stream
+	ofstream outputFileStream;
+	//Create an object of the FileManagement class
+	FileManagement FileStreamSystem;
+	//Open the stream with the output file
+	FileStreamSystem.openFileOutstream(outputFileStream, outputFilePath);
+	//Write to the temp file with the given word
+	FileStreamSystem.writeToOutputFile(outputFileStream,key, sum);
+	//Close file when complete
+	FileStreamSystem.closeOutputFile(outputFileStream);
 }
