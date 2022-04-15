@@ -75,6 +75,11 @@ public:
 	//Post-Condition:File is update with string data
 	//Write into a temporary file
 
+	void writeToOutputFile(ofstream& fileStream, string key, size_t sum);
+	//Pre-Condition:
+	//Post-Condition:
+	//
+
 	void readFromFile(ifstream& fileStream, string& data);
 	//Pre-Condition:File stream has been created and file is open
 	//Post-Condition: string data is updated with a line of raw data from input file

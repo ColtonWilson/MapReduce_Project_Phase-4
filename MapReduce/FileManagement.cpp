@@ -79,6 +79,14 @@ void FileManagement::writeToTempFile(ofstream& fileStream, const string& data)
 	fileStream << data;
 	fileStream << "\", 1)\n";
 }
+
+//To write from the intermediate file into the temporary file 
+void FileManagement::writeToOutputFile(ofstream& fileStream, string key, size_t sum)
+{
+	// write the output to the text file in the proper format.
+	fileStream << "(\"" << key << "\"), " << std::to_string(sum) << "\n";
+
+}
 //To read a line of raw data from the input file
 void FileManagement::readFromFile( ifstream& fileStream, string& data)
 {

@@ -24,6 +24,7 @@ Example output data: ("the", 1), ("dog", 1), ("likes", 1), ("to", 1), ("jump", 1
 //Directives
 #include "Map.h"
 #include "FileManagement.h"
+
 #include<boost/tokenizer.hpp>//boost library
 
 #include <iostream>
@@ -74,6 +75,8 @@ void Map::exportt(string& fileName, tokenizer<>::iterator& word)
 	FileStreamSystem.openFileOutstream(outputFileStream, fileName);
 	//Write to the temp file with the given word
 	FileStreamSystem.writeToTempFile(outputFileStream, *word);
+	//Close file when complete
+	FileStreamSystem.closeOutputFile(outputFileStream);
 
 
 }
