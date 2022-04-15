@@ -70,7 +70,7 @@ void Sorting::format() {
 
 		// get the first line from the file.
 		while (getline(inputFileStreamObj, line)) {
-		
+
 			// find the position of the first open parenthesis
 			openPos = line.find(openParenthesis);
 
@@ -112,14 +112,14 @@ void Sorting::format() {
 
 	// catch exception handled in exception class here
 	catch (const runtime_error& exception) {
-		cout << "\nException occured in \"Sorting::format\" method when reading data from file.\n";
+		cout << "\nException occurred in \"Sorting::format\" method when reading data from file.\n";
 		cout << exception.what();
 		throw exception;
 	}
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occured in \"Sorting::format\" method when reading data from file.\n";
+		cout << "\nException occurred in \"Sorting::format\" method when reading data from file.\n";
 		throw;
 	}
 
@@ -146,7 +146,7 @@ void Sorting::format() {
 
 		// perform the following on the entire list.
 		while (iteratorWordList2 != wordList.end()) {
-		
+
 			// assign first temporary word
 			wordTemp1 = *iteratorWordList2;
 
@@ -165,7 +165,7 @@ void Sorting::format() {
 				// if the words have the same key, increment the number of occurrences
 				// and delete remove the element from the linked list.
 				if (wordTemp1.key == wordTemp2.key) {
-			
+
 					// increment number of occurrences.
 					wordTemp1.numberOfOccurrences = wordTemp1.numberOfOccurrences + 1;
 
@@ -238,14 +238,14 @@ void Sorting::format() {
 
 	// catch exception handled in exception class here
 	catch (const runtime_error& exception) {
-		cout << "\nException occured in \"Sorting::format\" method when writing data to file.\n";
+		cout << "\nException occurred in \"Sorting::format\" method when writing data to file.\n";
 		cout << exception.what();
 		throw exception;
 	}
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occured in \"Sorting::format\" method when writing data to file.\n";
+		cout << "\nException occurred in \"Sorting::format\" method when writing data to file.\n";
 		throw;
 	}
 }

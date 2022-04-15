@@ -30,14 +30,15 @@ Example output data: ("a", [1, 1]), ("the", [1, 1]), ("is", [1])
 #include <stdexcept> // contains runtime_error
 
 // using the ofstream class from the standard namespace.
+using std::cout;
 using std::ofstream;
 using std::ifstream;
 using std::string;
 using std::list;
-using std::to_string;
-using std::cout;
-using std::getline;
 using std::runtime_error;
+using std::to_string;
+using std::getline;
+
 
 class Sorting {
 public:
@@ -55,13 +56,12 @@ public:
 	// formats the data for the Reduce class.
 	void format();
 
-	// virual destructor.
+	// Destructor
 	virtual ~Sorting();
 
 private:
 
-	// Destructor
-	//virtual ~Sorting();
+	
 
 	// a private struct "word"
 	struct word {

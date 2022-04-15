@@ -29,31 +29,31 @@ Example output data: ("the", 1), ("dog", 1), ("likes", 1), ("to", 1), ("jump", 1
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <string>
 #include <vector>
 #include <exception>
 #include <stdexcept> // contains runtime_error
-#include <boost/tokenizer.hpp>//boost library
+#include<boost/tokenizer.hpp>//boost library
 
-//Namespaces
+
+
+
+//Name spaces
+using std::cout;
 using std::string;
 using std::vector;
-using boost::tokenizer;
 using std::exception;
 using std::runtime_error;
-using std::cout;
-using std::ifstream;
-using std::ofstream;
+using boost::tokenizer;
+
 
 class Map
 {
 public:
-
 	//default constructor
 	Map();
-
 	//constructor with two parameters string file name and string line of raw data
 	Map(string& fileName, string& lineOfData);
+	
 
 	//**********Member Functions**********
 
@@ -62,19 +62,21 @@ public:
 	//remove punctuation, whitespace and capitalization from line of data
 	void tokenize(string& fileName, string& lineOfData);
 
+	
 	//Pre-Condition:File name has been created and is open. one word from raw data has been taken from string
 	//Post-Condition:file name has been appended with the word
 	//Write into temporary  file
 	void exportt(string& fileName, tokenizer<>::iterator& word);
 
-	// virual destructor.
-	virtual ~Map();
+	//**********Destructor*********
+	~Map();
 
 private:
-
-	//**********Virtual Destructor*********
-	//virtual ~Map();
+	
 
 };
+
+
+
 
 #endif

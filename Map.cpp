@@ -25,27 +25,36 @@ Example output data: ("the", 1), ("dog", 1), ("likes", 1), ("to", 1), ("jump", 1
 #include "Map.h"
 #include "FileManagement.h"
 
+
+
+//Name spaces
+using std::cout;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+
+using boost::tokenizer;
+
 //default constructor
 Map::Map() {}
-
 //constructor with two parameters
-Map::Map(string& fileName, string& lineOfData) { 
-	
+Map::Map(string& fileName, string& lineOfData)
+{
 	// attempt to tokenize the file name and line of data.
 	try {
-		tokenize(fileName, lineOfData); 
+		tokenize(fileName, lineOfData);
 	}
-	
+
 	// catch exception handled in exception class here
 	catch (const runtime_error& exception) {
-		cout << "\nException occured in \"Map::Constructor\".\n";
+		cout << "\nException occurred in \"Map::Constructor\".\n";
 		cout << exception.what();
 		throw exception;
 	}
-	
+
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occured in \"Map::Constructor\".\n";
+		cout << "\nException occurred in \"Map::Constructor\".\n";
 		throw;
 	}
 }
@@ -71,18 +80,19 @@ void Map::tokenize(string& fileName, string& lineOfData)
 			exportt(fileName, beg);
 		}
 	}
-	
+
 	// catch exception handled in exception class here
 	catch (const runtime_error& exception) {
-		cout << "\nException occured in \"Map::tokenize\" method.\n";
+		cout << "\nException occurred in \"Map::tokenize\" method.\n";
 		cout << exception.what();
 		throw exception;
 	}
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occured in \"Map::tokenize\" method.\n";
+		cout << "\nException occurred in \"Map::tokenize\" method.\n";
 		throw;
 	}
+	
 }
 //Write the word into the output file
 void Map::exportt(string& fileName, tokenizer<>::iterator& word)
@@ -106,13 +116,15 @@ void Map::exportt(string& fileName, tokenizer<>::iterator& word)
 
 	// catch exception handled in exception class here
 	catch (const runtime_error& exception) {
-		cout << "\nException occured in \"Map::exportt\" method.\n";
+		cout << "\nException occurred in \"Map::exportt\" method.\n";
 		cout << exception.what();
 		throw exception;
 	}
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occured in \"Map::exportt\" method.\n";
+		cout << "\nException occurred in \"Map::exportt\" method.\n";
 		throw;
 	}
+
+
 }
