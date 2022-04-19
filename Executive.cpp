@@ -14,79 +14,61 @@ It will print to screen a banner message for the user.
 Prompt the user to input three directories: input, temporary, and output.
 It will then create a Workflow class object with these file directories.  
 
-//Namespaces
-using std::cout;
-using std::cin;
-using std::string;
-
-struct Files
-{
-	string inputFile;
-	string intermediateFile;
-	string outputFile;
-
-	Files(){}
-
-	explicit Files(const string input, const string intermediate, const string output)
-		:inputFile{ input }, intermediateFile{ intermediate }, outputFile{ output }
-	{
-
-	}
-
-};
 
 */
 
+
 //Directives
 #include "Workflow.h"
+
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <boost/timer/timer.hpp>
+#include <cmath>
 
-//Namespaces
+
+//Name spaces
 using std::cout;
 using std::cin;
 using std::string;
 
-int main(int argc, char* argv[])
+int main()
 {
+	//Start timer
+	boost::timer::auto_cpu_timer t(3, "%w seconds\n");
 	
-	//Boost logging
-	//BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
-	//BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
-	//BOOST_LOG_TRIVIAL(info) << "An informational severity message";
-	//BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
-	//BOOST_LOG_TRIVIAL(error) << "An error severity message";
-	//BOOST_LOG_TRIVIAL(fatal) << "A fatal severity message";
-
-	//Initate variables to hold the names of the directory locations
+	//Initiate variables to hold the names of the directory locations
 	string inputFileName{ "Unknown" };
-	string intermediateFileName{ "Unknwon" };
+	string intermediateFileName{ "Unknown" };
 	string outputFileName{ "Unknown" };
 
 	//Banner Message
 	cout << "*************************************************************************************"
 		<< "\n*\t\t\tWelcome to the MapReduce!                                    *"
 		<< "\n*----------------------------------------------------------------------------------- *"
-		<< "\n*This program will allow a user to input their input input directory                 *"
+		<< "\n*This program will allow a user to input their input directory                       *"
 		<< "\n*where text files are stored and will ultimately produce a single output file that   *"
 		<< "\n*contains a list of words and their associated counts in the originating input files.*"
 		<< "\n**************************************************************************************";
-	
-	// flush the output.
 	cout.flush();
-
 	//Standalone command-line to get user text file input and output directory location
 	cout << "\nInsert the input directory, intermediate directory, and output directory locations.(Separate by a space)"
 		<< "\n>>>";
+	//cin >> inputFileName >> intermediateFileName >> outputFileName;
 
-	// Get the input file locations from the user.
-	cin >> inputFileName >> intermediateFileName >> outputFileName;
+	//WorkFlow workFlow(inputFileName, intermediateFileName, outputFileName);
 
-	// Create an instance of the Workflow class.
-	Workflow workFlow(inputFileName, intermediateFileName, outputFileName);
-	
-	//WorkFlow workFlow("c:\\FileTest\\Input\\input111.txt", "c:\\FileTest\\Temp\\intermediate.txt", "c:\\FileTest\\Output\\output.txt");//Test example of inputes
+	//**************Test to insert Directory**************
+	//cout << "\n";
+	//WorkFlow workFlow("C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\testFolder", "intermediate.txt", "output.txt");//Test example of inputs
+
+	//**************Test to insert file**************
+	WorkFlow workFlow("C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\testFolder\\New Text Document.txt", "intermediate.txt", "output.txt");//Test example of inputs
+
+	//print to screen seconds to complete program
+	cout << "\nTime to complete program: ";
+	for (long i = 0; i < 100000000; ++i)
+		std::sqrt(123.456L); // burn some time
 
 }//End of Program
-
