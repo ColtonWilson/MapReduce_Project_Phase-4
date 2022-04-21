@@ -26,7 +26,7 @@ The public data member functions are setters and getters for each data member.
 #include "Sorting.h"
 #include "NotValidFile.h"
 
-#include <boost/log/trivial.hpp>
+
 
 
 //default constructor
@@ -161,8 +161,7 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 			}
 		}
 
-		//Separate if it does from file
-		separateOutputPath(outputFile);
+
 		//Check if there was a directory path
 		if (getOutputFileDirectoryLocation() == "")
 		{
@@ -316,8 +315,7 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 			}
 		}
 
-		//Separate if it does from file
-		separateOutputPath(outputFile);
+		
 		//Check if there was a directory path
 		if (getOutputFileDirectoryLocation() == "")
 		{
@@ -349,9 +347,10 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 
 
 // Get File Name from a Path with or without extension
-void Workflow::separateOutputPath(const string userInputFile)
+void Workflow::separateOutputPath(const string userInputFile, const string& fileType)
 {
 	try {
+
 		// Create a Path object from File Path
 		boost::filesystem::path pathObj(userInputFile);
 
@@ -361,8 +360,19 @@ void Workflow::separateOutputPath(const string userInputFile)
 		//get the parent path
 		boost::filesystem::path dir = p.parent_path();
 
-		//set data member as a string to remember the path
-		setOutputFileDirectoryLocation(dir.string());
+		if (fileType == "output")
+		{
+			//set data member as a string to remember the path
+			setOutputFileDirectoryLocation(dir.string());
+
+		}
+		else
+		{
+			//set data member as a string to remember the path
+			setIntermediateFileDirectoryLocation(dir.string());
+		}
+
+		
 
 	}
 	// catch any exception here
@@ -469,7 +479,7 @@ bool Workflow::checkIfFIle(const string& userInputFile)
 }
 
 //Check if the output file is valid
-bool Workflow::checkOfFIle(const string& userInputFile)
+bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 {
 	// Create a Path object from given path string
 	boost::filesystem::path pathObj(userInputFile);
@@ -493,7 +503,20 @@ bool Workflow::checkOfFIle(const string& userInputFile)
 		//Check to see if the last file is a .txt 
 		if (userInputFile.substr(userInputFile.find_last_of(".") + 1) == "txt") 
 		{
+			//Separate if it does from file
+			separateOutputPath(userInputFile, fileType);
+
+			if (fileType == "output")
+			{
+				boost::filesystem::create_directories(getOutputFileDirectoryLocation());
+			}
+			else
+			{
+				boost::filesystem::create_directories(getIntermediateFileDirectoryLocation());
+			}
+
 			
+
 			return false;
 		}
 		else 
@@ -530,7 +553,7 @@ void Workflow::setInputFileLocation(const string& userInputFile)
 void Workflow::setIntermediateFileLocation(const string& userIntermediateFile) 
 {
 	//Verify input call to checkIfFile()
-	if (checkOfFIle(userIntermediateFile))
+	if (checkOfFIle(userIntermediateFile, "intermediate"))
 	{
 		//If return true then throw exception
 		throw NotValidFile{}; //terminate function
@@ -552,7 +575,7 @@ void Workflow::setIntermediateFileLocation(const string& userIntermediateFile)
 void Workflow::setOutputFileLocation(const string& userOutputFile) 
 { 
 	//Verify input call to checkIfFile()
-	if (checkOfFIle(userOutputFile))
+	if (checkOfFIle(userOutputFile, "output"))
 	{
 
 		//If return true then throw exception
@@ -571,6 +594,8 @@ void Workflow::setOutputFileLocation(const string& userOutputFile)
 
 }
 
+void Workflow::setIntermediateFileDirectoryLocation(const string& userOutputFile) { intermediateFileDirectoryLocation = userOutputFile; }
+
 // Set the output file directory location.
 void Workflow::setOutputFileDirectoryLocation(const string& userOutputFile) { outputFileDirectoryLocation = userOutputFile; }
 
@@ -585,6 +610,8 @@ const string Workflow::getIntermediateFileLocation(void) { return intermediateFi
 
 // Get the output file location.
 const string Workflow::getOutputFileLocation(void) { return outputFileLocation; }
+
+const string Workflow::getIntermediateFileDirectoryLocation(void) { return intermediateFileDirectoryLocation; }
 
 // Get the output file directory location.
 const string Workflow::getOutputFileDirectoryLocation(void) { return outputFileDirectoryLocation; }
