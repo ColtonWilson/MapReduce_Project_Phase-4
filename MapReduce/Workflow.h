@@ -9,8 +9,8 @@ Project 1
 Workflow.h
 
 Below is "Workflow" class, which is called by the  main() in Executive.cpp.
-The constructor takes three string direcotry names and saves the strings into private data memebrs.
-The constructior will then tie together all the header files with supporting logic.
+The constructor takes three string directory names and saves the strings into private data members.
+The constructor will then tie together all the header files with supporting logic.
 The public data member functions are setters and getters for each data member.
 
 
@@ -21,83 +21,138 @@ The public data member functions are setters and getters for each data member.
 #define WORKFLOW_H
 
 //Directives
-#include<string>
+#include <boost/filesystem.hpp>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdexcept> // contains runtime_error
 
 //NameSpaces
+using std::cout;
+using std::cin;
+using std::endl;
 using std::string;
+using std::ifstream;
+using std::vector;
+using std::runtime_error;
+using boost::filesystem::recursive_directory_iterator;
 
-class WorkFlow
+class Workflow
 {
 public:
 	//default constructor
-	WorkFlow();
+	Workflow();
 	//WorkFlow constructor with three parameters: string input file directory, string temporary directory to hold intermediate output files, and string output file
-	WorkFlow(string inputFile, string intermediateFile, string outputFile);
+	Workflow(string inputFile, string intermediateFile, string outputFile);
 
-	//**********Destructor*********
-	~WorkFlow();
 
 	//**********Member Function**********
-	void separateOutputPath(const string userInputFile, const string& fileType);
+
+	//Pre-condition: File is given in directory
+	//Post-condition: NA
+	//Will just read the contents of the one file
+	void inputIsFile(string inputFile, string intermediateFile, string outputFile);
+
+
+	//Pre-condition: Directory is given with no file name
+	//Post-condition: NA
+	//Will read in all files in the directory
+	void inputIsDirectory(string inputFile, string intermediateFile, string outputFile);
+
+
 	//Pre-condition: outputFileLocation has been given
-	//Post-condition: outputFileDirectoryLocation data memeber will have a value
+	//Post-condition: outputFileDirectoryLocation data member will have a value
 	//Separates the directory path from the file name
+	void separateOutputPath(const string userInputFile);
+
+
+	//Pre-condition: input, intermediate, output file directories have been declared. 
+	//Post-condition: directories could be changed if not valid
+	//While loops through each file until they are valid
+	void checkFilesValid(string& inputFile, string& intermediateFile, string& outputFile);
+
+	//Pre-condition: An input file is declared
+	//Post-condition: input file is changed if not valid
+	//Checks if the input file is valid to use
 	bool checkIfFIle(const string& userInputFile);
 
+
+	//Pre-condition: An output has been declared
+	//Post-condition: output file changed if not valid
+	//Checks if the output file is valid to use
 	bool checkOfFIle(const string& userInputFile);
 
 	//**********Setters**********
-	void setInputFileLocation(const string& userInputFile);
+
 	//Pre-condition: None
-	//Post-conditon:inputFileLocation has value updated
+	//Post-condition:inputFileLocation has value updated
 	//update value in inputFileLocation
-	void setIntermediateFileLocation(const string& userIntermediateFile);
+	void setInputFileLocation(const string& userInputFile);
+
+
 	//Pre-condition: None
-	//Post-conditon:intermediateFileLocation has value updated
+	//Post-condition:intermediateFileLocation has value updated
 	//update value in intermediateFileLocation
-	void setOutputFileLocation(const string& userOutputFile);
+	void setIntermediateFileLocation(const string& userIntermediateFile);
+
+
 	//Pre-condition: None
-	//Post-conditon:outputFileLocation has value updated
+	//Post-condition:outputFileLocation has value updated
 	//update value in outputFileLocation
-	void setIntermediateFileDirectoryLocation(const string& userOutputFile);
+	void setOutputFileLocation(const string& userOutputFile);
+
+
 	//Pre-condition: None
-	//Post-conditon:IntermediateFileDirectoryLocation has value updated
-	//update value in IntermediateFileDirectoryLocation
-	void setOutputFileDirectoryLocation(const string& userOutputFile);
-	//Pre-condition: None
-	//Post-conditon:outputFileDirectoryLocation has value updated
+	//Post-condition:outputFileDirectoryLocation has value updated
 	//update value in outputFileDirectoryLocation
+	void setOutputFileDirectoryLocation(const string& userOutputFile);
+	
 
 	//**********Getters**********
-	const string getInputFileLocation(void);
-	//Pre-condition: inputFileLocation has a value
-	//Post-conditon: none
-	//Return the value in inputFileLocation
-	const string getIntermediateFileLocation(void);
-	//Pre-condition: intermediateFileLocation has a value
-	//Post-conditon: none
-	//Return the value in intermediateFileLocation
-	const string getOutputFileLocation(void);
-	//Pre-condition: outputFileLocation has a value
-	//Post-conditon: none
-	//Return the value in outputFileLocation
-	const string getIntermediateFileDirectoryLocation(void);
-	//Pre-condition: IntermediateFileDirectoryLocation has a value
-	//Post-conditon: none
-	//Return the value in IntermediateFileDirectoryLocation
-	const string getOutputFileDirectoryLocation(void);
-	//Pre-condition: outputFileDirectoryLocation has a value
-	//Post-conditon: none
-	//Return the value in outputFileDirectoryLocation
 
+	//Pre-condition: inputFileLocation has a value
+	//Post-condition: none
+	//Return the value in inputFileLocation
+	const string getInputFileLocation(void);
+
+
+	//Pre-condition: intermediateFileLocation has a value
+	//Post-condition: none
+	//Return the value in intermediateFileLocation
+	const string getIntermediateFileLocation(void);
+
+
+	//Pre-condition: outputFileLocation has a value
+	//Post-condition: none
+	//Return the value in outputFileLocation
+	const string getOutputFileLocation(void);
+
+
+	//Pre-condition: outputFileDirectoryLocation has a value
+	//Post-condition: none
+	//Return the value in outputFileDirectoryLocation
+	const string getOutputFileDirectoryLocation(void);
+	
+	//**********Destructor*********
+	~Workflow();
 	
 
 private:
-	string inputFileLocation{ "Unknown" }; //Data member to save location of input text file...just read from
-	string intermediateFileLocation{ "Unknown" };//Data member to save location of intermediate file...will be written and then read
-	string intermediateFileDirectoryLocation{ "Unknown" }; //Data member to save directory information for intermediate file
-	string outputFileLocation{ "Unknown" };//Data member to save location of the output file...will be written too
-	string outputFileDirectoryLocation{ "Unknown" }; //Data member to save directory information for output file
+	
+
+	//Data member to save location of input text file...just read from
+	string inputFileLocation{ "Unknown" };
+
+	//Data member to save location of intermediate file...will be written and then read
+	string intermediateFileLocation{ "Unknown" };
+
+	//Data member to save location of the output file...will be written too
+	string outputFileLocation{ "Unknown" };
+
+	//Data member to save directory information for output file
+	string outputFileDirectoryLocation{ "Unknown" };
+
+	// Boolean variables that determine validity of the files.
 	bool validInputFile{ false };
 	bool validIntermediateFile{ false };
 	bool validOutputFile{ false };
