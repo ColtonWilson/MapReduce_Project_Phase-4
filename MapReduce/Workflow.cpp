@@ -48,13 +48,6 @@ Workflow::~Workflow() {}
 
 //**********Member Function**********
 
-// display the progress of the sorting class
-void Workflow::displayProgress(double inputPercentage) {
-
-	// display the percentage to the console.
-	cout << "\nReduce Progress: " << inputPercentage * 100 << "%" << endl;
-}
-
 
 //Path to run if input is a File
 void Workflow::inputIsFile(string inputFile, string intermediateFile, string outputFile)
@@ -131,9 +124,6 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 		// format the file.
 		sortingObj.format();
 
-		// update the original word list length so that we can track our progress.
-		originalWordListLengthCopy = sortingObj.getOriginalWordListLength();
-
 		// open the intermediate file
 		FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
 
@@ -163,23 +153,6 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 
 					// pass the string to the reduce method from the Reduce class.
 					reduceObj.reduce(entryStrPntr);
-
-					// decrease the copy
-					originalWordListLengthCopy = originalWordListLengthCopy - 1;
-
-					// update the percentage
-					percentageComplete = ((double)(sortingObj.getOriginalWordListLength() - originalWordListLengthCopy)) / sortingObj.getOriginalWordListLength();
-
-					// if the percentage complete is greater than or equal to the percentage compare value, 
-					// display it on the console.
-					if (percentageComplete >= percentageCompareValue) {
-						
-						// increment the percentage compare value by 5 %
-						percentageCompareValue = percentageCompareValue + percentageCompareIncrementValue;
-						
-						// display the progress on the console.
-						displayProgress(percentageComplete);
-					}
 				}
 
 				// update the offset into the line for the next search.
@@ -297,11 +270,7 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 	size_t closedPos{ NULL };
 
 	// local variables used to calculate the percentage
-
 	size_t wordsReduced{ 0 };
-
-	size_t originalWordListLengthCopy{ 0 };
-
 	double percentageComplete{ 0 };
 	double percentageCompareValue{ 0.05 };
 	double percentageCompareIncrementValue{ 0.05 };
@@ -310,8 +279,8 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 		// format the file.
 		sortingObj.format();
 
-		// update the original word list length so that we can track our progress.
-		originalWordListLengthCopy = sortingObj.getOriginalWordListLength();
+		// inform the user.
+		cout << "\nWorkflow is now parsing the intermediate file and calling the Reduce class on each entry." << endl;
 
 		// open the intermediate file
 		FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
@@ -342,30 +311,6 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 
 					// pass the string to the reduce method from the Reduce class.
 					reduceObj.reduce(entryStrPntr);
-
-					// increase the copy
-					 wordsReduced = wordsReduced + 1;
-
-					// update the percentage
-				    percentageComplete = ((double)(wordsReduced)) / sortingObj.getOriginalWordListLength();
-
-					// decrease the copy
-					originalWordListLengthCopy = originalWordListLengthCopy - 1;
-
-					// update the percentage
-					percentageComplete = ((double)(sortingObj.getOriginalWordListLength() - originalWordListLengthCopy)) / sortingObj.getOriginalWordListLength();
-
-
-					// if the percentage complete is greater than or equal to the percentage compare value, 
-					// display it on the console.
-					if (percentageComplete >= percentageCompareValue) {
-
-						// increment the percentage compare value by 5 %
-						percentageCompareValue = percentageCompareValue + percentageCompareIncrementValue;
-
-						// display the progress on the console.
-						displayProgress(percentageComplete);
-					}
 				}
 
 				// update the offset into the line for the next search.
@@ -392,6 +337,9 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 
 		// Close the SUCCESS.txt file.
 		FileStreamSystem.closeOutputFile(outputFileStream);		
+
+		// 
+		cout << "\nSuccess. Program will now terminate." << endl;
 	}
 
 	// catch any exception here
