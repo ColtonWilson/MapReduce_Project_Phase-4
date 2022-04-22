@@ -27,14 +27,19 @@ Example output data: ("a", [1, 1]), ("the", [1, 1]), ("is", [1])
 #include <fstream>
 #include <string>
 #include <list>
+#include <stdexcept> // contains runtime_error
 
 // using the ofstream class from the standard namespace.
+using std::cout;
 using std::ofstream;
 using std::ifstream;
 using std::string;
 using std::list;
+using std::runtime_error;
 using std::to_string;
 using std::getline;
+using std::endl;
+
 
 class Sorting {
 public:
@@ -43,17 +48,20 @@ public:
 	// Constructor takes a pointer to the intermediate file path as an argument. 
 	Sorting(string* intermediateFilePath);
 
-	// Destructor
-	virtual ~Sorting();
-
 	// get a pointer to the intermediate file path
 	string* getIntermediateFilePath();
 
 	// set the intermediate file path
-	void setIntermediateFilePath(string* outputFilePath);
+	void setIntermediateFilePath(string* intermediateFilePath);
 
 	// formats the data for the Reduce class.
 	void format();
+
+	// Destructor
+	virtual ~Sorting();
+
+	// get the original word list length.
+	size_t getOriginalWordListLength();
 
 private:
 
@@ -68,6 +76,10 @@ private:
 
 	// Private Data Member Variables
 	string intermediateFilePath;
+
+	// record the original word list length.
+	size_t originalWordListLength;
+
 };
 
 #endif
