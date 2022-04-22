@@ -146,6 +146,9 @@ public:
 	//Return the value in outputFileDirectoryLocation
 	const string getOutputFileDirectoryLocation(void);
 	
+    // Display the progress to the user (every 5%)
+	void displayProgress(double inputPercentage);
+	
 	//**********Destructor*********
 	~Workflow();
 	
