@@ -33,12 +33,23 @@ Sorting::Sorting(string* inputOutputFilePath) :
 Sorting::~Sorting() {
 
 	// clear the wordList
-	wordList.clear();
+	wordVector.clear();
 }
 
-// return the original word list length.
-size_t Sorting::getOriginalWordListLength() {
-	return(originalWordListLength);
+// swap the two words
+void Sorting::swap(word* wordPntr1, word* wordPntr2) {
+	
+	// declare local variable
+	word tempWord;
+
+	// initialize local variable
+	tempWord = *wordPntr1;
+
+	// assign wordPntr1 to wordPntr2
+	*wordPntr1 = *wordPntr2;
+
+	// assign wordPntr2 to temp
+	*wordPntr2 = tempWord;
 }
 
 // return a reference to the intermediate file path.
@@ -69,8 +80,12 @@ void Sorting::format() {
 	size_t closedPos{ NULL };
 	word wordObj;
 
-	// try reading the file and adding all words to the data structure (linked-list).
+	// try reading the file and adding all words to the data structure (vector).
 	try {
+
+		// display message to user.
+		cout << "\nSorting has begun. Words are being discovered." << endl;
+
 		// open the intermediate file
 		inputFileStreamObj.open(intermediateFilePath);
 
@@ -89,7 +104,7 @@ void Sorting::format() {
 				// find the position of the closed parenthesis
 				closedPos = line.find(closedParenthesis, offset);
 
-				// if the open and closed parentheses were found, add the word to the linked list.
+				// if the open and closed parentheses were found, add the word to the vector.
 				if ((openPos != string::npos) && (closedPos != string::npos)) {
 
 					// extract the first key from the line.
@@ -100,7 +115,7 @@ void Sorting::format() {
 					wordObj.numberOfOccurrences = 1;
 
 					// push it onto the linked list.
-					wordList.push_back(wordObj);
+					wordVector.push_back(wordObj);
 				}
 
 				// update the offset into the line for the next search.
@@ -136,99 +151,77 @@ void Sorting::format() {
 	outputFileStreamObj.close();
 
 	// inform the user of the number of words found.
-	cout << "\nThe number of words found in the intermediate file: " << wordList.size();
-
-	// list iterator for traversing through the word list.
-	list<word>::iterator iteratorWordList1;
-	list<word>::iterator iteratorWordList2;
-
-	// words to compare
-	word wordTemp1;
-	word wordTemp2;
+	cout << "\nThe number of words found in the intermediate file: " << wordVector.size();
+	cout << "\nThese words are now being searched for duplicate entries." << endl;
 
 	// Try to write the data back to the intermediate file in the correct
 	// format for the reduce class. Example: ("is", [1, 1, 1])
 	try {
 
-		// assign iterator
-		iteratorWordList2 = wordList.begin();
+		// declare local variables.
+		size_t i{ 0 };
+		
+		// iterate to second to last element
+		while (i < wordVector.size() - 1) {
 
-		// perform the following on the entire list.
-		while (iteratorWordList2 != wordList.end()) {
+			// declare local variables
+			size_t j{ i + 1 };
 
-			// assign first temporary word
-			wordTemp1 = *iteratorWordList2;
+			// iterate through to the last element
+			while (j < wordVector.size()) {
 
-			// have iterator 1 start at the same element
-			iteratorWordList1 = iteratorWordList2;
+				// if the words have the same key, swap the element 
+				if (wordVector[i].key == wordVector[j].key) {
 
-			// increment iterator 1
-			iteratorWordList1++;
+					// swap the matching word with the next word 
+					swap(&wordVector[i + wordVector[i].numberOfOccurrences], &wordVector[j]);
 
-			// compare each word with the first word in the list.
-			while (iteratorWordList1 != wordList.end()) {
-
-				// assign the second word for comparison.
-				wordTemp2 = *iteratorWordList1;
-
-				// if the words have the same key, increment the number of occurrences
-				// and delete remove the element from the linked list.
-				if (wordTemp1.key == wordTemp2.key) {
-
-					// increment number of occurrences.
-					wordTemp1.numberOfOccurrences = wordTemp1.numberOfOccurrences + 1;
-
-					// remove the second word from the list.
-					iteratorWordList1 = wordList.erase(iteratorWordList1);
+					//update number of occurrences
+					wordVector[i].numberOfOccurrences = wordVector[i].numberOfOccurrences + 1;
 				}
-				else {
-					// increment the iterator to the next word in the list.
-					iteratorWordList1++;
-				}
+
+				// increment variable j.
+				j = j + 1;
+
 			}
 
-			// update the number of occurrences for the element in the linked list.
-			*iteratorWordList2 = wordTemp1;
-
-			// increment the second iterator for the next word.
-			iteratorWordList2++;
+			// increment variable i.
+			i = i + wordVector[i].numberOfOccurrences;
 		}
 
+		// now the vector is sorted so that it looks like:
+		// {{ "a", numberOfOccurrences = 3 }, { "a", numberOfOccurrences = 1 }, { "a", numberOfOccurrences = 1 },
+		// { "blah", numberOfOccurrences = 2 }, { "blah", numberOfOccurrences = 1 }}
+
 		// update the originalWordListLength
-		originalWordListLength = wordList.size();
+		originalWordListLength = wordVector.size();
 
 		// reformat file
 		outputFileStreamObj.open(intermediateFilePath);
-
-		// send all of the properly formatted data to the intermediate file
-		iteratorWordList1 = wordList.begin();
 
 		// number of words per line
 		int wordsPerLine{ 7 };
 		int counter{ 0 };
 
+		// initialize local variables
+		size_t ii{ 0 };
+
 		// perform the following operation on the entire list.
-		while (iteratorWordList1 != wordList.end()) {
-
-			// assign the termporary word.
-			wordTemp1 = *iteratorWordList1;
-
+		while (ii < wordVector.size()) {
+			
 			// write the output to the text file in the proper format.
-			outputFileStreamObj << "(\"" << wordTemp1.key << "\", [";
+			outputFileStreamObj << "(\"" << wordVector[ii].key << "\", [";
 
 			// output the correct number of 1's.
-			for (int i = 0; i < wordTemp1.numberOfOccurrences - 1; i++) {
+			for (int jj = 0; jj < wordVector[ii].numberOfOccurrences - 1; jj++) {
 				outputFileStreamObj << "1, ";
 			}
 
 			// send the last 1 and ending bracket.
 			outputFileStreamObj << "1])";
 
-			// increment the iterator.
-			iteratorWordList1++;
-
 			// if there are more words to output, send a comma and a space
-			if (iteratorWordList1 != wordList.end()) {
+			if (ii != wordVector.size() - wordVector[ii].numberOfOccurrences) {
 				outputFileStreamObj << ", ";
 			}
 
@@ -242,10 +235,16 @@ void Sorting::format() {
 				// reset the counter.
 				counter = 0;
 			}
+
+			// increment ii variable
+			ii = ii + wordVector[ii].numberOfOccurrences;
 		}
 
 		// close the file.
 		outputFileStreamObj.close();
+
+		// inform the user that sorting has finished.
+		cout << "\nSorting has finished." << endl;
 	}
 
 	// catch exception handled in exception class here
