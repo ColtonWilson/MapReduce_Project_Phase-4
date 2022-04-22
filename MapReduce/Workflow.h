@@ -25,7 +25,9 @@ The public data member functions are setters and getters for each data member.
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 #include <stdexcept> // contains runtime_error
+#include <boost/log/trivial.hpp>
 
 //NameSpaces
 using std::cout;
@@ -63,7 +65,7 @@ public:
 	//Pre-condition: outputFileLocation has been given
 	//Post-condition: outputFileDirectoryLocation data member will have a value
 	//Separates the directory path from the file name
-	void separateOutputPath(const string userInputFile);
+	void separateOutputPath(const string userInputFile, const string& fileType);
 
 
 	//Pre-condition: input, intermediate, output file directories have been declared. 
@@ -80,7 +82,7 @@ public:
 	//Pre-condition: An output has been declared
 	//Post-condition: output file changed if not valid
 	//Checks if the output file is valid to use
-	bool checkOfFIle(const string& userInputFile);
+	bool checkOfFIle(const string& userInputFile, const string& fileType);
 
 	//**********Setters**********
 
@@ -100,6 +102,11 @@ public:
 	//Post-condition:outputFileLocation has value updated
 	//update value in outputFileLocation
 	void setOutputFileLocation(const string& userOutputFile);
+
+	//Pre-condition: None
+	//Post-condition:IntermediateFileDirectoryLocation has value updated
+	//update value in IntermediateFileDirectoryLocation
+	void setIntermediateFileDirectoryLocation(const string& userOutputFile);
 
 
 	//Pre-condition: None
@@ -128,6 +135,12 @@ public:
 	const string getOutputFileLocation(void);
 
 
+	//Pre-condition: intermediateFileDirectoryLocation has a value
+	//Post-condition: none
+	//Return the value in intermediateFileDirectoryLocation
+	const string getIntermediateFileDirectoryLocation(void);
+
+
 	//Pre-condition: outputFileDirectoryLocation has a value
 	//Post-condition: none
 	//Return the value in outputFileDirectoryLocation
@@ -148,6 +161,9 @@ private:
 
 	//Data member to save location of the output file...will be written too
 	string outputFileLocation{ "Unknown" };
+
+	//Data member to save directory information for intermediate file
+	string intermediateFileDirectoryLocation{ "Unknown" };
 
 	//Data member to save directory information for output file
 	string outputFileDirectoryLocation{ "Unknown" };
