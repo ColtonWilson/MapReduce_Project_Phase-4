@@ -26,7 +26,7 @@ Example output data: ("a", [1, 1]), ("the", [1, 1]), ("is", [1])
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <list>
+#include <vector>
 #include <stdexcept> // contains runtime_error
 
 // using the ofstream class from the standard namespace.
@@ -34,7 +34,7 @@ using std::cout;
 using std::ofstream;
 using std::ifstream;
 using std::string;
-using std::list;
+using std::vector;
 using std::runtime_error;
 using std::to_string;
 using std::getline;
@@ -60,9 +60,6 @@ public:
 	// Destructor
 	virtual ~Sorting();
 
-	// get the original word list length.
-	size_t getOriginalWordListLength();
-
 private:
 
 	// a private struct "word"
@@ -71,14 +68,16 @@ private:
 		int numberOfOccurrences;
 	};
 
-	// a linked list of words
-	list<word> wordList;
+	// a vector of all collected words
+	vector<word> wordVector;
 
 	// Private Data Member Variables
 	string intermediateFilePath;
 
 	// record the original word list length.
 	size_t originalWordListLength;
+
+	void swap(word* wordPntr1, word* wordPntr2);
 
 };
 
