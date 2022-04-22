@@ -145,6 +145,22 @@ public:
 	//Post-condition: none
 	//Return the value in outputFileDirectoryLocation
 	const string getOutputFileDirectoryLocation(void);
+
+	//Pre-condition: validInputFile has a value
+	//Post-condition: none
+	//Return the value in validInputFile
+	const bool getValidInputFile(void);
+
+
+	//Pre-condition: validIntermediateFile has a value
+	//Post-condition: none
+	//Return the value in validIntermediateFile
+	const bool getValidIntermediateFile(void);
+
+	//Pre-condition: validOutputFile has a value
+	//Post-condition: none
+	//Return the value in validOutputFile
+	const bool getValidOutputFile(void);
 	
 	//**********Destructor*********
 	~Workflow();

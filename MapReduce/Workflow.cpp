@@ -113,9 +113,9 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 	string openParenthesis{ "(" };
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
-	
+
 	// local variables used to calculate the percentage
-	size_t originalWordListLengthCopy{ 0 };
+	size_t wordsReduced{ 0 };
 	double percentageComplete{ 0 };
 	double percentageCompareValue{ 0.05 };
 	double percentageCompareIncrementValue{ 0.05 };
@@ -123,6 +123,9 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 	try {
 		// format the file.
 		sortingObj.format();
+
+		// inform the user.
+		cout << "\nWorkflow is now parsing the intermediate file and calling the Reduce class on each entry." << endl;
 
 		// open the intermediate file
 		FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
@@ -179,6 +182,9 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 
 		// Close the SUCCESS.txt file.
 		FileStreamSystem.closeOutputFile(outputFileStream);
+
+		// 
+		cout << "\nSuccess. Program will now terminate." << endl;
 	}
 
 	// catch any exception here
@@ -426,6 +432,7 @@ void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, stri
 	{
 		//try block to attempt to the input file directory
 		try {
+
 			setIntermediateFileLocation(intermediateFile);
 		}
 		//If not valid then throw exception
@@ -515,11 +522,20 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 
 			if (fileType == "output")
 			{
-				boost::filesystem::create_directories(getOutputFileDirectoryLocation());
+				if (!(getOutputFileDirectoryLocation() == ""))
+				{
+					boost::filesystem::create_directories(getOutputFileDirectoryLocation());
+				}
+				
 			}
 			else
 			{
-				boost::filesystem::create_directories(getIntermediateFileDirectoryLocation());
+				if (!(getIntermediateFileDirectoryLocation() == ""))
+				{
+					cout << getIntermediateFileDirectoryLocation();
+					boost::filesystem::create_directories(getIntermediateFileDirectoryLocation());
+				}
+				
 			}
 
 			
@@ -622,4 +638,13 @@ const string Workflow::getIntermediateFileDirectoryLocation(void) { return inter
 
 // Get the output file directory location.
 const string Workflow::getOutputFileDirectoryLocation(void) { return outputFileDirectoryLocation; }
+
+// Get the bool if input file is valid. 
+const bool  Workflow::getValidInputFile(void) { return validInputFile; }
+
+// Get the bool if intermediate file is valid. 
+const bool  Workflow::getValidIntermediateFile(void) { return validIntermediateFile; }
+
+// Get the bool if output file is valid. 
+const bool  Workflow::getValidOutputFile(void) { return validOutputFile; }
 

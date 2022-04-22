@@ -27,68 +27,96 @@ A function readFromFile() to return a string of one line of rawData from the fil
 //Directives
 #include "Workflow.h"
 
+#include <iostream>
+#include <stdexcept> // contains runtime_error
 #include <fstream>
+#include <vector>
+#include <string>
 
-//Namespaces
+#include <boost/filesystem.hpp>
+#include <stdlib.h>
+
+
+
+
+//Name spaces
+using std::cout;
+using std::endl;
+using std::string;
 using std::ifstream;
 using std::ofstream;
+using std::vector;
+
+using std::runtime_error;
 
 
 
-class FileManagement : public WorkFlow
+class FileManagement
 {
 public:
 	//default constructor
 	FileManagement();
 
-	//**********Destructor*********
-	~FileManagement();
-
+	
 	//**********Member Functions**********
+	vector<string> getAllFilesInDir(const string& dirPath, const vector<string> dirSkipList = { });
+
+	//Pre-condition: File stream has been created and file Directory has been given
+	//Post-condition:Files have been opened as an in stream
+	//Open the directory files that user has given to be able to read
 	void openFileInstream(ifstream& fileStream, const string userFile);
-	//Pre-condition: File stream has been created and file Directory has been given
-	//Post-conditon:Files have been opened as an instream
-	//Open the diractory files that user has given to be able to read
 
+	
+	//Pre-condition: File stream has been created and file Directory has been given
+	//Post-condition:Files have been opened as an out stream
+	//Open the directory files that user has given and able to read
 	void openFileOutstream(ofstream& fileStream, const string& userFile);
-	//Pre-condition: File stream has been created and file Directory has been given
-	//Post-conditon:Files have been opened as an outstream
-	//Open the diractory files that user has given and able to read
 
-	void fileCorrupt(ifstream& fileStream);
+	
 	//Pre-condition:  File stream has been created and file is open
-	//Post-conditon:Failure message will print to screen if file is corrupt. 
+	//Post-condition:Failure message will print to screen if file is corrupt. 
 	//Check to see if file failed to open
+	void fileCorrupt(ifstream& fileStream);
 
+	
+	//Pre-condition: File stream has been created and file is open
+	//Post-condition:File has been closed
+	//Close the directory files that user has given
 	void closeInputFile(ifstream& fileToClose);
+	
 	//Pre-condition: File stream has been created and file is open
-	//Post-conditon:File has been closed
-	//Close the diractory files that user has given
-
+	//Post-condition:File has been closed
+	//Close the directory files that user has given
 	void closeOutputFile(ofstream& fileToClose);
-	//Pre-condition: File stream has been created and file is open
-	//Post-conditon:File has been closed
-	//Close the diractory files that user has given
-
-	void writeToTempFile(ofstream& fileStream, const string& data);
+	
 	//Pre-Condition:File stream has been created and file is open
 	//Post-Condition:File is update with string data
 	//Write into a temporary file
-
-	void writeToOutputFile(ofstream& fileStream, string key, size_t sum);
+	void writeToTempFile(ofstream& fileStream, const string& data);
+	
 	//Pre-Condition:
 	//Post-Condition:
 	//
-
-	void readFromFile(ifstream& fileStream, string& data);
+	void writeToOutputFile(ofstream& fileStream, string key, size_t sum);
+	
 	//Pre-Condition:File stream has been created and file is open
 	//Post-Condition: string data is updated with a line of raw data from input file
 	//grab a line of data from the input file
+	void readFromFile(ifstream& fileStream, string& data);
 
-	void clearFile(ofstream& fileStream, const string& userFile);
+
+	
 	//Pre-Condition:File stream has been created
 	//Post-Condition:File is empty
 	//clear the contents of a file
+	void clearFile(ofstream& fileStream, const string& userFile);
+	
+	//**********Destructor*********
+	~FileManagement();
+
+private:
+	
+
 
 };
 #endif
