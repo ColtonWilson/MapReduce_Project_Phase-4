@@ -297,7 +297,11 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 	size_t closedPos{ NULL };
 
 	// local variables used to calculate the percentage
+
+	size_t wordsReduced{ 0 };
+
 	size_t originalWordListLengthCopy{ 0 };
+
 	double percentageComplete{ 0 };
 	double percentageCompareValue{ 0.05 };
 	double percentageCompareIncrementValue{ 0.05 };
@@ -339,11 +343,18 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 					// pass the string to the reduce method from the Reduce class.
 					reduceObj.reduce(entryStrPntr);
 
+					// increase the copy
+					 wordsReduced = wordsReduced + 1;
+
+					// update the percentage
+				    percentageComplete = ((double)(wordsReduced)) / sortingObj.getOriginalWordListLength();
+
 					// decrease the copy
 					originalWordListLengthCopy = originalWordListLengthCopy - 1;
 
 					// update the percentage
 					percentageComplete = ((double)(sortingObj.getOriginalWordListLength() - originalWordListLengthCopy)) / sortingObj.getOriginalWordListLength();
+
 
 					// if the percentage complete is greater than or equal to the percentage compare value, 
 					// display it on the console.
