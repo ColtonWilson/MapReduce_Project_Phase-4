@@ -114,12 +114,6 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
 
-	// local variables used to calculate the percentage
-	size_t wordsReduced{ 0 };
-	double percentageComplete{ 0 };
-	double percentageCompareValue{ 0.05 };
-	double percentageCompareIncrementValue{ 0.05 };
-
 	try {
 		// format the file.
 		sortingObj.format();
@@ -274,12 +268,6 @@ void Workflow::inputIsDirectory(string inputFile, string intermediateFile, strin
 	string openParenthesis{ "(" };
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
-
-	// local variables used to calculate the percentage
-	size_t wordsReduced{ 0 };
-	double percentageComplete{ 0 };
-	double percentageCompareValue{ 0.05 };
-	double percentageCompareIncrementValue{ 0.05 };
 
 	try {
 		// format the file.
