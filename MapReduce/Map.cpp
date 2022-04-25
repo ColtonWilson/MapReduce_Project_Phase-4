@@ -25,13 +25,9 @@ Example output data: ("the", 1), ("dog", 1), ("likes", 1), ("to", 1), ("jump", 1
 #include "Map.h"
 #include "FileManagement.h"
 
-#include<boost/tokenizer.hpp>//boost library
 
-#include <iostream>
-#include <fstream>
-#include<string>
 
-//Namespaces
+//Name spaces
 using std::cout;
 using std::string;
 using std::ifstream;
@@ -42,7 +38,26 @@ using boost::tokenizer;
 //default constructor
 Map::Map() {}
 //constructor with two parameters
-Map::Map(string& fileName, string& lineOfData) { tokenize(fileName, lineOfData); }
+Map::Map(string& fileName, string& lineOfData)
+{
+	// attempt to tokenize the file name and line of data.
+	try {
+		tokenize(fileName, lineOfData);
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "\nException occurred in \"Map::Constructor\".\n";
+		cout << exception.what();
+		throw exception;
+	}
+
+	// catch any exception here
+	catch (...) {
+		cout << "\nException occurred in \"Map::Constructor\".\n";
+		throw;
+	}
+}
 
 //**********Destructor*********
 Map::~Map() {}
@@ -50,33 +65,67 @@ Map::~Map() {}
 //tokenize function to remove punctuation, whitespace and capitalization
 void Map::tokenize(string& fileName, string& lineOfData)
 {
-	//Work through the sting and make everything lower case
-	std::for_each(lineOfData.begin(), lineOfData.end(), [](char& c) {
-		c = ::tolower(c);
-		});
-	
-	//intitate a tokenizer object with the raw data
-	tokenizer<> tok(lineOfData);
-	//Work through the tokenizer and call exportt() with each word
-	for (tokenizer<>::iterator beg = tok.begin(); beg != tok.end(); ++beg)
-	{
-		exportt(fileName, beg);
+	try {
+		//Work through the sting and make everything lower case
+		std::for_each(lineOfData.begin(), lineOfData.end(), [](char& c) {
+			c = ::tolower(c);
+			});
+		
+		//intitate a tokenizer object with the raw data
+		tokenizer<> tok(lineOfData);
+		
+		//Work through the tokenizer and call exportt() with each word
+		for (tokenizer<>::iterator beg = tok.begin(); beg != tok.end(); ++beg)
+		{
+			
+			exportt(fileName, beg);
+		}
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "\nException occurred in \"Map::tokenize\" method.\n";
+		cout << exception.what();
+		throw exception;
+	}
+	// catch any exception here
+	catch (...) {
+		cout << "\nException occurred in \"Map::tokenize\" method.\n";
+		throw;
 	}
 	
 }
 //Write the word into the output file
 void Map::exportt(string& fileName, tokenizer<>::iterator& word)
 {
-	//Initiate an output stream
-	ofstream outputFileStream;
-	//Create an object of the FileManagement class
-	FileManagement FileStreamSystem;
-	//Open the stream with the output file
-	FileStreamSystem.openFileOutstream(outputFileStream, fileName);
-	//Write to the temp file with the given word
-	FileStreamSystem.writeToTempFile(outputFileStream, *word);
-	//Close file when complete
-	FileStreamSystem.closeOutputFile(outputFileStream);
+	try {
+		//Initiate an output stream
+		ofstream outputFileStream;
+
+		//Create an object of the FileManagement class
+		FileManagement FileStreamSystem;
+
+		//Open the stream with the output file
+		FileStreamSystem.openFileOutstream(outputFileStream, fileName);
+
+		//Write to the temp file with the given word
+		FileStreamSystem.writeToTempFile(outputFileStream, *word);
+
+		//Close file when complete
+		FileStreamSystem.closeOutputFile(outputFileStream);
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "\nException occurred in \"Map::exportt\" method.\n";
+		cout << exception.what();
+		throw exception;
+	}
+	// catch any exception here
+	catch (...) {
+		cout << "\nException occurred in \"Map::exportt\" method.\n";
+		throw;
+	}
 
 
 }

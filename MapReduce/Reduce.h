@@ -22,16 +22,18 @@ to the output file path destination.
 #ifndef REDUCE_H
 #define REDUCE_H
 
-// include the iostream and fstream namespaces
+// include the iostream and fstream name spaces
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stdexcept> // contains runtime_error
 
-// using the ofstream class from the standard namespace.
+// using the ofstream class from the standard name space.
 using std::ofstream;
 using std::string;
 using std::to_string;
 using std::ios_base;
+using std::runtime_error;
 
 class Reduce {
 public: 
@@ -40,9 +42,7 @@ public:
 	// Constructor takes a pointer to an output file path as an argument. 
 	Reduce(string* outputFilePath);
 
-	// Destructor
-	virtual ~Reduce();
-
+	
 	// get a pointer to the output file path
 	string* getOutputFilePath();
 
@@ -52,7 +52,12 @@ public:
 	// sums up the iterators and calls the export method.
 	void reduce(string* inputString);
 
+	// Destructor
+	virtual ~Reduce();
+
 private:
+
+	
 
 	// Private Data Member Functions
 	// export the data to the output file path (one entry at a time)

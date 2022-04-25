@@ -26,13 +26,24 @@ Example output data: ("the", 1), ("dog", 1), ("likes", 1), ("to", 1), ("jump", 1
 #define MAP_H
 
 //Directives
-#include<string>
+#include<algorithm>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <vector>
-#include<boost/tokenizer.hpp>
+#include <exception>
+#include <stdexcept> // contains runtime_error
+#include<boost/tokenizer.hpp>//boost library
 
-//Namespaces
+
+
+
+//Name spaces
+using std::cout;
 using std::string;
 using std::vector;
+using std::exception;
+using std::runtime_error;
 using boost::tokenizer;
 
 
@@ -43,19 +54,26 @@ public:
 	Map();
 	//constructor with two parameters string file name and string line of raw data
 	Map(string& fileName, string& lineOfData);
-	//**********Destructor*********
-	~Map();
+	
 
 	//**********Member Functions**********
-	void tokenize(string& fileName, string& lineOfData);
+
 	//Pre-Condition:File name has been created and is open. Line of raw data taken from input file
 	//Post-Condition:N/A
 	//remove punctuation, whitespace and capitalization from line of data
+	void tokenize(string& fileName, string& lineOfData);
 
-	void exportt(string& fileName, tokenizer<>::iterator& word);
+	
 	//Pre-Condition:File name has been created and is open. one word from raw data has been taken from string
 	//Post-Condition:file name has been appended with the word
 	//Write into temporary  file
+	void exportt(string& fileName, tokenizer<>::iterator& word);
+
+	//**********Destructor*********
+	~Map();
+
+private:
+	
 
 };
 
