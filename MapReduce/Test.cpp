@@ -85,12 +85,6 @@ BOOST_AUTO_TEST_CASE(Sort_Test)
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
 
-	// local variables used to calculate the percentage
-	size_t wordsReduced{ 0 };
-	double percentageComplete{ 0 };
-	double percentageCompareValue{ 0.05 };
-	double percentageCompareIncrementValue{ 0.05 };
-
 		// format the file.
 		sortingObj.format();
 
@@ -148,12 +142,6 @@ BOOST_AUTO_TEST_CASE(Reduce_Test)
 	string openParenthesis{ "(" };
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
-
-	// local variables used to calculate the percentage
-	size_t originalWordListLengthCopy{ 0 };
-	double percentageComplete{ 0 };
-	double percentageCompareValue{ 0.05 };
-	double percentageCompareIncrementValue{ 0.05 };
 
 	// open the intermediate file
 	FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
