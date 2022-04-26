@@ -81,7 +81,7 @@ void Reduce::reduce(string* inputString) {
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occurred in \"Reduce::reduce\" method.\n";
+		BOOST_LOG_TRIVIAL(warning) << "Exception occurred in \"Reduce::reduce\" method.";
 		throw;
 	}
 }
@@ -115,7 +115,7 @@ void Reduce::exportt(string key, size_t sum) {
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occurred in \"Reduce::exportt\" method.\n";
+		BOOST_LOG_TRIVIAL(warning) << "Exception occurred in \"Reduce::exportt\" method.";
 		throw;
 	}
 }
