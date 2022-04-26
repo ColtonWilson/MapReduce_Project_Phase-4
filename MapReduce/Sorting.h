@@ -28,6 +28,7 @@ Example output data: ("a", [1, 1]), ("the", [1, 1]), ("is", [1])
 #include <string>
 #include <vector>
 #include <stdexcept> // contains runtime_error
+#include <boost/log/trivial.hpp>
 
 // using the ofstream class from the standard namespace.
 using std::cout;
@@ -76,7 +77,8 @@ private:
 
 	// record the original word list length.
 	size_t originalWordListLength;
-
+	
+	// swap two words in the vector
 	void swap(word* wordPntr1, word* wordPntr2);
 
 };
