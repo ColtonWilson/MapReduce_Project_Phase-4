@@ -38,18 +38,33 @@ Sorting::~Sorting() {
 
 // swap the two words
 void Sorting::swap(word* wordPntr1, word* wordPntr2) {
-	
-	// declare local variable
-	word tempWord;
 
-	// initialize local variable
-	tempWord = *wordPntr1;
+	try {
+		// declare local variable
+		word tempWord;
 
-	// assign wordPntr1 to wordPntr2
-	*wordPntr1 = *wordPntr2;
+		// initialize local variable
+		tempWord = *wordPntr1;
 
-	// assign wordPntr2 to temp
-	*wordPntr2 = tempWord;
+		// assign wordPntr1 to wordPntr2
+		*wordPntr1 = *wordPntr2;
+
+		// assign wordPntr2 to temp
+		*wordPntr2 = tempWord;
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "\nException occurred in \"Sorting::swap\" method.\n";
+		cout << exception.what();
+		throw exception;
+	}
+
+	// catch any exception here
+	catch (...) {
+		BOOST_LOG_TRIVIAL(warning) << "Exception occurred in \"Sorting::swap\" method.";
+		throw;
+	}
 }
 
 // return a reference to the intermediate file path.
@@ -140,7 +155,7 @@ void Sorting::format() {
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occurred in \"Sorting::format\" method when reading data from file.\n";
+		BOOST_LOG_TRIVIAL(warning) << "Exception occurred in \"Sorting::format\" method when reading data from file.";
 		throw;
 	}
 
@@ -256,8 +271,7 @@ void Sorting::format() {
 
 	// catch any exception here
 	catch (...) {
-		cout << "\nException occurred in \"Sorting::format\" method when writing data to file.\n";
+		BOOST_LOG_TRIVIAL(warning) << "Exception occurred in \"Sorting::format\" method when writing data to file.";
 		throw;
 	}
 }
-
