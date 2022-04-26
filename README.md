@@ -12,8 +12,6 @@ For help on installing Boost the following sources were used.
 Walkthrough Video:
 https://www.youtube.com/watch?v=5afpq2TkOHc&t=451s
 
-[![Everything Is AWESOME](https://img.youtube.com/vi/StTqXEQ2l-Y/0.jpg)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Everything Is AWESOME")
-
 Online Guide:
 https://levelup.gitconnected.com/the-definite-guide-on-compiling-and-linking-boost-c-libraries-for-visual-studio-projects-c79464d7282d
 
