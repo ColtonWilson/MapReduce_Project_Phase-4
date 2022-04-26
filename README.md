@@ -33,11 +33,17 @@ Execute `build.cmd`
 If not using the Github API, You'll need to:
 
 -Click on the green code drop down
+<br>
 -Select the 'Download ZIP' option
+<br>
 -Move downloaded file to preferred location.
+<br>
 -Open Visual Studio
+<br>
 -Select 'Open Project'
+<br>
 -Select the 'MapReduce.sln'
+<br>
 
 ## Logs
 Logs can be viewed at the following location:
