@@ -27,6 +27,7 @@ to the output file path destination.
 #include <fstream>
 #include <string>
 #include <stdexcept> // contains runtime_error
+#include <boost/log/trivial.hpp>
 
 // using the ofstream class from the standard name space.
 using std::ofstream;
