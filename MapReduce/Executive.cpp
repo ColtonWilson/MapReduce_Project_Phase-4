@@ -47,7 +47,7 @@ void init_logging()
 	logging::register_simple_formatter_factory<logging::trivial::severity_level, char>("Severity");
 
 	logging::add_file_log(
-		keywords::file_name = "sample.log",
+		keywords::file_name = "logResult.log",
 		keywords::format = "[%TimeStamp%] [%ThreadID%] [%Severity%] [%ProcessID%] [%LineID%] %Message%"
 	);
 
@@ -92,10 +92,16 @@ int main()
 		<< "\n*This program will allow a user to input their input directory                       *"
 		<< "\n*where text files are stored and will ultimately produce a single output file that   *"
 		<< "\n*contains a list of words and their associated counts in the originating input files.*"
+		<< "\n**************************************************************************************"
+		<< "\n*                               Example input                                        *"
+		<< "\n*------------------------------------------------------------------------------------*"
+		<< "\n* Input File Directory: c:\\...\\chosen_file.txt                                       *"
+		<< "\n* Intermediate File Directory: c:\\...\\chosen_file.txt                                *"
+		<< "\n* Output File Directory: chosen_file.txt                                             *"
 		<< "\n**************************************************************************************";
 	cout.flush();
 	//Standalone command-line to get user text file input and output directory location
-	cout << "\nInsert the input directory, intermediate directory, and output directory locations.(Separate by a space)"
+	cout << "\nInsert the input directory, intermediate directory, and output directory locations."
 		//<< "\n>>>";
 	//cin >> inputFileName >> intermediateFileName >> outputFileName;
 		<< "\nInput File Directory: ";
@@ -106,13 +112,6 @@ int main()
 	std::getline(cin, outputFileName);
 
 	Workflow workFlow(inputFileName, intermediateFileName, outputFileName);
-
-	//**************Test to insert Directory**************
-	cout << "\n";
-	//WorkFlow workFlow("C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\shakespeare", "intermediate.txt", "output.txt");//Test example of inputs
-
-	//**************Test to insert file**************
-	//WorkFlow workFlow("C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\testFolder\\New Text Document.txt", "intermediate.txt", "output.txt");//Test example of inputs
 
 	//print to screen seconds to complete program
 	cout << "\nTime to complete program: ";
