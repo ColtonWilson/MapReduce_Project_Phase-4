@@ -20,7 +20,6 @@ The public data member functions are setters and getters for each data member.
 //Directives
 #include "Workflow.h"
 #include "FileManagement.h"
-#include "Map.h"
 #include "Reduce.h"
 #include "Sorting.h"
 #include "NotValidFile.h"
@@ -31,15 +30,8 @@ Workflow::Workflow() {}
 Workflow::Workflow(string inputFile, string intermediateFile, string outputFile)
 {
 	checkFilesValid(inputFile, intermediateFile, outputFile);
-
-	if (boost::filesystem::is_directory(inputFile))
-	{
-		inputIsDirectory(inputFile, intermediateFile, outputFile);
-	}
-	else
-	{
-		inputIsFile(inputFile, intermediateFile, outputFile);
-	}
+	
+	startProgram(getInputFileLocation(), getIntermediateFileLocation(), getOutputFileLocation());
 	
 }
 
@@ -50,37 +42,103 @@ Workflow::~Workflow() {}
 
 
 //Path to run if input is a File
-void Workflow::inputIsFile(string inputFile, string intermediateFile, string outputFile)
+void Workflow::startProgram(string inputFile, string intermediateFile, string outputFile)
 {
-	//<-----------------Part 1------------------------------------------>
+	HINSTANCE hDLL;
+	funcMap Map;
+	const wchar_t* libName = L"MapLibrary";
+
+	hDLL = LoadLibraryEx(libName, NULL, NULL);   // Handle to DLL
+
+	Map = (funcMap)GetProcAddress(hDLL, "Map");
+
 	// Writing from input file to intermediate file
-	//Create an input and output stream class
+		//Create an input and output stream class
 	ifstream inputFileStream;
 	ofstream intermediateFileStream;
 	//Create an object of the FileManagement class
 	FileManagement FileStreamSystem;
-	//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-	FileStreamSystem.openFileInstream(inputFileStream, inputFile);
-	FileStreamSystem.fileCorrupt(inputFileStream);
-	//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-	FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
-	//Initiate a variable to hold raw data given by the input file
-	string data{ "Unknown" };
-	//Keep collecting data until the end of file and get a return of "1"
-	while (data != "1")
+
+	if (boost::filesystem::is_directory(inputFile))
 	{
-		//Get a line of data from the input file
-		FileStreamSystem.readFromFile(inputFileStream, data);
-		//Check if data was not the end of file
-		if (data != "1")
+		//<-----------------Part 1 for directory given------------------------------------------>
+		//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
+		FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
+
+		vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
+
+		for (auto str : listOfFiles)
 		{
-			//Create a Map class object with the output file and data given.
-			//This will add the data to the file given
-			Map toTempFile(intermediateFile, data);
+			cout << str << endl;
 		}
 
+		cout << "*************************************************************************" << endl;
+		//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
+		for (auto str : listOfFiles)
+		{
+			FileStreamSystem.openFileInstream(inputFileStream, str);
+			FileStreamSystem.fileCorrupt(inputFileStream);
+
+			//Initiate a variable to hold raw data given by the input file
+			string data{ "Unknown" };
+			//Keep collecting data until the end of file and get a return of "1"
+			while (data != "1")
+			{
+				//Get a line of data from the input file
+				FileStreamSystem.readFromFile(inputFileStream, data);
+				//Check if data was not the end of file
+				if (data != "1")
+				{
+					if (Map != NULL) 
+					{
+						Map(intermediateFile, data);
+					}
+					else
+						std::cout << "Did not load Multiply correctly." << std::endl;
+
+				}
+
+			}
+			
+			FileStreamSystem.closeInputFile(inputFileStream);
+
+		}
+		FreeLibrary(hDLL);
 	}
-	FileStreamSystem.closeInputFile(inputFileStream);
+	else
+	{
+		//<-----------------Part 1 for file given------------------------------------------>
+		//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
+		FileStreamSystem.openFileInstream(inputFileStream, inputFile);
+		FileStreamSystem.fileCorrupt(inputFileStream);
+		//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
+		FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
+		//Initiate a variable to hold raw data given by the input file
+		string data{ "Unknown" };
+		//Keep collecting data until the end of file and get a return of "1"
+		while (data != "1")
+		{
+			//Get a line of data from the input file
+			FileStreamSystem.readFromFile(inputFileStream, data);
+			//Check if data was not the end of file
+			if (data != "1")
+			{
+				if (Map != NULL) 
+				{
+
+					Map(intermediateFile, data);
+				}
+				else
+					std::cout << "Did not load Multiply correctly." << std::endl;
+			}
+
+		}
+		
+		FileStreamSystem.closeInputFile(inputFileStream);
+
+	}
+	FreeLibrary(hDLL);
+	
 
 	//<-----------------Part 2------------------------------------------>
 	// Sorting and Reducing
@@ -113,6 +171,12 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 	string openParenthesis{ "(" };
 	size_t openPos{ NULL };
 	size_t closedPos{ NULL };
+
+	// local variables used to calculate the percentage
+	size_t wordsReduced{ 0 };
+	double percentageComplete{ 0 };
+	double percentageCompareValue{ 0.05 };
+	double percentageCompareIncrementValue{ 0.05 };
 
 	try {
 		// format the file.
@@ -190,162 +254,7 @@ void Workflow::inputIsFile(string inputFile, string intermediateFile, string out
 	}
 }
 
-//Path to run if input is a directory
-void Workflow::inputIsDirectory(string inputFile, string intermediateFile, string outputFile)
-{
-	//<-----------------Part 1------------------------------------------>
-// Writing from input file to intermediate file
-//Create an input and output stream class
-	ifstream inputFileStream;
-	ofstream intermediateFileStream;
-	//Create an object of the FileManagement class
-	FileManagement FileStreamSystem;
-	//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-	FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
 
-	vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
-
-	for (auto str : listOfFiles)
-	{
-		cout << str << endl;
-	}
-
-	cout << "*************************************************************************" << endl;
-	//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-	for (auto str : listOfFiles)
-	{
-		FileStreamSystem.openFileInstream(inputFileStream, str);
-		FileStreamSystem.fileCorrupt(inputFileStream);
-
-		//Initiate a variable to hold raw data given by the input file
-		string data{ "Unknown" };
-		//Keep collecting data until the end of file and get a return of "1"
-		while (data != "1")
-		{
-			//Get a line of data from the input file
-			FileStreamSystem.readFromFile(inputFileStream, data);
-			//Check if data was not the end of file
-			if (data != "1")
-			{
-				//Create a Map class object with the output file and data given.
-				//This will add the data to the file given
-				Map toTempFile(intermediateFile, data);
-			}
-
-		}
-		FileStreamSystem.closeInputFile(inputFileStream);
-
-	}
-
-	//<-----------------Part 2------------------------------------------>
-	// Sorting and Reducing
-	// declare and initialize local variables.
-	string intermediateFilePath = intermediateFile; // intermediate file path
-	string outputFilePath = outputFile;
-	string* intermediateFilePathPntr = &intermediateFilePath;
-	string* outputFilePathPntr = &outputFilePath;
-
-	// initialize local variables
-	ofstream outputFileStream;
-
-	// open the file for editing.
-	FileStreamSystem.clearFile(outputFileStream, outputFile);
-
-	// create an instance of the Sorting class.
-	Sorting sortingObj(intermediateFilePathPntr);
-
-	// create an instance of the Reduce class.
-	Reduce reduceObj(outputFilePathPntr);
-
-	// Create local variables. Input file stream object
-	ifstream inputFileStreamObj;
-	string line;
-	string entryString{ NULL };
-	string* entryStrPntr{ NULL };
-
-	// create a delimiter to find the following string: ")"
-	string closedParenthesis{ ")" };
-	string openParenthesis{ "(" };
-	size_t openPos{ NULL };
-	size_t closedPos{ NULL };
-
-	try {
-		// format the file.
-		sortingObj.format();
-
-		// inform the user.
-		cout << "\nWorkflow is now parsing the intermediate file and calling the Reduce class on each entry." << endl;
-
-		// open the intermediate file
-		FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
-
-		// assign the entry string pointer
-		entryStrPntr = &entryString;
-
-		// get the first line from the file.
-		while (getline(inputFileStreamObj, line)) {
-
-			// find the position of the first open parenthesis
-			openPos = line.find(openParenthesis);
-
-			// offset for the find method of the string class.
-			size_t offset{ 0 };
-
-			// while there are words in this line, keep extracting them.
-			while (openPos != string::npos) {
-
-				// find the position of the closed parenthesis
-				closedPos = line.find(closedParenthesis, offset);
-
-				// if the open and closed parentheses were found, pass the substring to the reduce class.
-				if ((openPos != string::npos) && (closedPos != string::npos)) {
-
-					// extract the entry. 
-					entryString = line.substr(openPos, (closedPos - openPos) + 1);
-
-					// pass the string to the reduce method from the Reduce class.
-					reduceObj.reduce(entryStrPntr);
-				}
-
-				// update the offset into the line for the next search.
-				offset = closedPos + 1;
-
-				// Find the position of the next open parenthesis. 
-				openPos = line.find(openParenthesis, offset);
-			}
-		}
-
-		
-		//Check if there was a directory path
-		if (getOutputFileDirectoryLocation() == "")
-		{
-			// Print the SUCCESS.txt file to output directory.
-			FileStreamSystem.openFileOutstream(outputFileStream, "SUCCESS.txt");
-
-		}
-		else
-		{
-			// Print the SUCCESS.txt file to output directory.
-			FileStreamSystem.openFileOutstream(outputFileStream, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
-		}
-
-		// Close the SUCCESS.txt file.
-		FileStreamSystem.closeOutputFile(outputFileStream);		
-
-		// 
-		cout << "\nSuccess. Program will now terminate." << endl;
-	}
-
-	// catch any exception here
-	catch (...)
-	{
-		BOOST_LOG_TRIVIAL(fatal) << "Error in Workflow class inputIsDirectory function. Program will shutdown";
-		throw;
-
-	}
-
-
-}
 
 // Get File Name from a Path with or without extension
 void Workflow::separateOutputPath(const string userInputFile, const string& fileType)
@@ -488,17 +397,7 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 	// Check if path exists
 	if (boost::filesystem::exists(pathObj))
 	{
-		//Check if using a file and not a directory
-		if (boost::filesystem::is_regular_file(pathObj))
-		{
-			
-			return false;
-		}
-		else
-		{
-			BOOST_LOG_TRIVIAL(warning) << "Directory must include a '.txt' file to write to at the end.";
-			return true;
-		}
+		return false;
 	}
 	else
 	{
@@ -563,8 +462,11 @@ void Workflow::setInputFileLocation(const string& userInputFile)
 // Set the intermediate file location.
 void Workflow::setIntermediateFileLocation(const string& userIntermediateFile) 
 {
+	string intermediateFileToCheck = userIntermediateFile;
+
+	
 	//Verify input call to checkIfFile()
-	if (checkOfFIle(userIntermediateFile, "intermediate"))
+	if (checkOfFIle(intermediateFileToCheck, "intermediate"))
 	{
 		//If return true then throw exception
 		throw NotValidFile{}; //terminate function
@@ -573,8 +475,19 @@ void Workflow::setIntermediateFileLocation(const string& userIntermediateFile)
 	//If false then insert into inputFileLocation 
 	else
 	{
+		// Create a Path object from given path string
+		boost::filesystem::path pathObj(intermediateFileToCheck);
+		//Check if using a file and not a directory
+		if (!boost::filesystem::is_regular_file(pathObj))
+		{
+			intermediateFileToCheck = intermediateFileToCheck + "\\Intermediate.txt";
+			BOOST_LOG_TRIVIAL(warning) << "Directory must include a '.txt' file to write to at the end. Will write a Intermediate.txt in same directory. ";
+			//Separate if it does from file
+			separateOutputPath(intermediateFileToCheck, "intermediate");
+
+		}
 		//intermediateFileLocation = userIntermediateFile;
-		intermediateFileLocation = userIntermediateFile;
+		intermediateFileLocation = intermediateFileToCheck;
 		//update validInputFile
 		validIntermediateFile = true;
 
@@ -585,8 +498,11 @@ void Workflow::setIntermediateFileLocation(const string& userIntermediateFile)
 // Set the output file location.
 void Workflow::setOutputFileLocation(const string& userOutputFile) 
 { 
+	string outputFileToCheck = userOutputFile;
+
+	
 	//Verify input call to checkIfFile()
-	if (checkOfFIle(userOutputFile, "output"))
+	if (checkOfFIle(outputFileToCheck, "output"))
 	{
 
 		//If return true then throw exception
@@ -596,7 +512,19 @@ void Workflow::setOutputFileLocation(const string& userOutputFile)
 	//If false then insert into inputFileLocation 
 	else
 	{
-		outputFileLocation = userOutputFile;
+		
+		// Create a Path object from given path string
+		boost::filesystem::path pathObj(outputFileToCheck);
+		//Check if using a file and not a directory
+		if (!boost::filesystem::is_regular_file(pathObj))
+		{
+			outputFileToCheck = outputFileToCheck + "\\Output.txt";
+			BOOST_LOG_TRIVIAL(warning) << "Directory must include a '.txt' file to write to at the end. Will write a Output.txt in same directory. ";
+			//Separate if it does from file
+			separateOutputPath(outputFileToCheck, "output");
+
+		}
+		outputFileLocation = outputFileToCheck;
 		//update validInputFile
 		validOutputFile = true;
 
