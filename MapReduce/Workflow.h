@@ -41,6 +41,7 @@ using std::runtime_error;
 using boost::filesystem::recursive_directory_iterator;
 
 typedef void (*funcMap)(string, string);
+typedef void (*funcReduce)(string, string);
 
 class Workflow
 {
@@ -67,7 +68,7 @@ public:
 	//Pre-condition: input, intermediate, output file directories have been declared. 
 	//Post-condition: directories could be changed if not valid
 	//While loops through each file until they are valid
-	void checkFilesValid(string& inputFile,string& intermediateFile, string& outputFile);
+	void checkFilesValid(string& inputFile, string& intermediateFile, string& outputFile);
 
 	//Pre-condition: An input file is declared
 	//Post-condition: input file is changed if not valid
@@ -109,7 +110,7 @@ public:
 	//Post-condition:outputFileDirectoryLocation has value updated
 	//update value in outputFileDirectoryLocation
 	void setOutputFileDirectoryLocation(const string& userOutputFile);
-	
+
 
 	//**********Getters**********
 
@@ -157,13 +158,13 @@ public:
 	//Post-condition: none
 	//Return the value in validOutputFile
 	const bool getValidOutputFile(void);
-	
+
 	//**********Destructor*********
 	~Workflow();
-	
+
 
 private:
-	
+
 
 	//Data member to save location of input text file...just read from
 	string inputFileLocation{ "Unknown" };
