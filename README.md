@@ -1,4 +1,4 @@
-# MapReduce_Project_Phase-2
+# MapReduce_Project_Phase-1
 # Requirements
 
   * Visual Studio 2022
@@ -8,14 +8,9 @@
 
 For help on installing Boost the following sources were used. 
 
-```
-Walkthrough Video:
-https://www.youtube.com/watch?v=5afpq2TkOHc&t=451s
-
-Online Guide:
-https://levelup.gitconnected.com/the-definite-guide-on-compiling-and-linking-boost-c-libraries-for-visual-studio-projects-c79464d7282d
-
-```
+-[Walkthrough Video](https://www.youtube.com/watch?v=5afpq2TkOHc&t=451s)
+<br>
+-[Online Guide](https://levelup.gitconnected.com/the-definite-guide-on-compiling-and-linking-boost-c-libraries-for-visual-studio-projects-c79464d7282d)
 
 
 ## Build
@@ -51,11 +46,21 @@ Logs can be viewed at the following location:
 -logResult.log
 -File will be located in the project folder.
 
+## Boost Unit Testing
+Program has test.cpp file for BOOST unit testing. 
+<br>
+If BOOST Unit testing is not active on machine, review guide below on set-up.
+<br>
+-[Online Guide](https://docs.microsoft.com/en-us/visualstudio/test/how-to-use-boost-test-for-cpp?view=vs-2022)
+
 
 # Sample Execution & Output
 
 Program will ask for directory locations for an input file, intermediate file, and output file. 
+<br>
 Note: If a file location is inside the project folder, only the file name is needed. 
+<br>
+Note: If no intermediate.txt or output.txt is given, then a default .txt file will be given. 
 
 ```
 Input File Directory: c:\...\chosen_file.txt
