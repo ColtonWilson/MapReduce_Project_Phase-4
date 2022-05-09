@@ -12,6 +12,8 @@ For help on installing Boost the following sources were used.
 <br>
 -[Online Guide](https://levelup.gitconnected.com/the-definite-guide-on-compiling-and-linking-boost-c-libraries-for-visual-studio-projects-c79464d7282d)
 
+## Using DLL
+This program depends on the use of DLL's MapLibrary and ReduceLibrary. Please view Creating_DLLs_in_VS2017.docx on how to create and implement DLL's. 
 
 ## Build
 
