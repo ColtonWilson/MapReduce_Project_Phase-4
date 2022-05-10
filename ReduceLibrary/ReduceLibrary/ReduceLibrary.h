@@ -44,5 +44,5 @@ using std::runtime_error;
 using std::endl;
 
 extern "C" REDUCELIBRARY_API void Reduce(string & outputFilePath, string & inputString);
-extern "C" REDUCELIBRARY_API void ReduceExport(string & outputFilePath, string key, size_t sum);
+void ReduceExport(string & outputFilePath, string key, size_t sum);
 
