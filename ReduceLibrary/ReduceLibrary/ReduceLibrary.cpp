@@ -65,7 +65,7 @@ REDUCELIBRARY_API void Reduce(string& outputFilePath, string& inputString) {
 }
 
 // export the data to the output file path (one entry at a time)
-REDUCELIBRARY_API void ReduceExport(string& outputFilePath, string key, size_t sum) {
+void ReduceExport(string& outputFilePath, string key, size_t sum) {
 	try {
 		//Initiate an output stream
 		ofstream outputFileStream;
