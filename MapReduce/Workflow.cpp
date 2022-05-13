@@ -17,6 +17,9 @@ The public data member functions are setters and getters for each data member.
 
 */
 
+//Constant R, how many buckets are being used
+const int RMAX{ 100 };
+
 //Directives
 #include "Workflow.h"
 #include "FileManagement.h"
@@ -84,24 +87,35 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 				//Initiate a variable to hold raw data given by the input file
 				string data{ "Unknown" };
 				//Keep collecting data until the end of file and get a return of "1"
-				while (data != "1")
+				int R = 0;
+				while (data != "-1")
 				{
-					//Get a line of data from the input file
-					FileStreamSystem.readFromFile(inputFileStream, data);
-					//Check if data was not the end of file
-					if (data != "1")
-					{
-						if (Map != NULL)
+						//Get a line of data from the input file
+						FileStreamSystem.readFromFile(inputFileStream, data);
+						//Check if data was not the end of file
+						if (data != "-1")
 						{
-							Map(intermediateFile, data);
+							if (Map != NULL)
+							{
+								if (R == 0)
+								{
+									Map(intermediateFile, data);
+									R++;
+								}
+								else
+								{
+									string newIntermediateFileName = updateString(intermediateFile, to_string(R+1));
+									Map(newIntermediateFileName, data);
+									R++;
+
+								}
+								R = R % RMAX;
+
+							}
+							else
+								std::cout << "Did not load Map correctly." << std::endl;
 						}
-						else
-							std::cout << "Did not load Map correctly." << std::endl;
-
-					}
-
 				}
-
 				FileStreamSystem.closeInputFile(inputFileStream);
 
 			}
@@ -117,22 +131,34 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 			//Initiate a variable to hold raw data given by the input file
 			string data{ "Unknown" };
 			//Keep collecting data until the end of file and get a return of "1"
-			while (data != "1")
+			int R = 0;
+			while (data != "-1")
 			{
 				//Get a line of data from the input file
 				FileStreamSystem.readFromFile(inputFileStream, data);
 				//Check if data was not the end of file
-				if (data != "1")
+				if (data != "-1")
 				{
 					if (Map != NULL)
 					{
+						if (R == 0)
+						{
+							Map(intermediateFile, data);
+							R++;
+						}
+						else
+						{
+							string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
+							Map(newIntermediateFileName, data);
+							R++;
 
-						Map(intermediateFile, data);
+						}
+						R = R % RMAX;
+
 					}
 					else
 						std::cout << "Did not load Map correctly." << std::endl;
 				}
-
 			}
 
 			FileStreamSystem.closeInputFile(inputFileStream);
@@ -458,6 +484,14 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 			return true;
 		}
 	}
+}
+
+string Workflow::updateString(string origional, string toAdd)
+{
+	
+	int strLength = origional.size();
+	return origional.substr(0, strLength-4) + toAdd + origional.substr(strLength-4);
+
 }
 //**********Setters**********
 // Set the input file location.
