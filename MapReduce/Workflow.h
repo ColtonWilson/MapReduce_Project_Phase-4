@@ -81,6 +81,8 @@ public:
 	//Checks if the output file is valid to use
 	bool checkOfFIle(const string& userInputFile, const string& fileType);
 
+	string updateString(string origional, string toAdd);
+
 	//**********Setters**********
 
 	//Pre-condition: None
