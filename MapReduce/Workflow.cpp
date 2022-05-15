@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-4/9/2022
+5/15/2022
 
 Workflow.cpp
 
@@ -18,13 +18,14 @@ The public data member functions are setters and getters for each data member.
 */
 
 //Constant R, how many buckets are being used
-const int RMAX{ 100 };
+const int RMAX{ 5 };
 
 //Directives
 #include "Workflow.h"
 #include "FileManagement.h"
-#include "Sorting.h"
 #include "NotValidFile.h"
+
+using std::to_string;
 
 //default constructor
 Workflow::Workflow() {}
@@ -60,7 +61,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		//Create an input and output stream class
 		ifstream inputFileStream;
 		ofstream intermediateFileStream;
-		
+
 		//Create an object of the FileManagement class
 		FileManagement FileStreamSystem;
 
@@ -68,8 +69,12 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		{
 			//<-----------------Part 1 for directory given------------------------------------------>
 			//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-			FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
+			for (int i = 0; i < RMAX; i++) {
+				string tempIntermediateFilePath = updateString(intermediateFile, to_string(i + 1));
+				FileStreamSystem.clearFile(intermediateFileStream, tempIntermediateFilePath);
+			}
 
+			// insert all of the files in the directory inside a vector of strings.
 			vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
 
 			for (auto str : listOfFiles)
@@ -88,33 +93,34 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 				string data{ "Unknown" };
 				//Keep collecting data until the end of file and get a return of "1"
 				int R = 0;
-				while (data != "-1")
+				while (data != "1")
 				{
-						//Get a line of data from the input file
-						FileStreamSystem.readFromFile(inputFileStream, data);
-						//Check if data was not the end of file
-						if (data != "-1")
+					//Get a line of data from the input file
+					FileStreamSystem.readFromFile(inputFileStream, data);
+					//Check if data was not the end of file
+					if (data != "1")
+					{
+						if (Map != NULL)
 						{
-							if (Map != NULL)
+							if (R == 0)
 							{
-								if (R == 0)
-								{
-									Map(intermediateFile, data);
-									R++;
-								}
-								else
-								{
-									string newIntermediateFileName = updateString(intermediateFile, to_string(R+1));
-									Map(newIntermediateFileName, data);
-									R++;
-
-								}
-								R = R % RMAX;
-
+								string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
+								Map(newIntermediateFileName, data);
+								R++;
 							}
 							else
-								std::cout << "Did not load Map correctly." << std::endl;
+							{
+								string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
+								Map(newIntermediateFileName, data);
+								R++;
+
+							}
+							R = R % RMAX;
+
 						}
+						else
+							std::cout << "Did not load Map correctly." << std::endl;
+					}
 				}
 				FileStreamSystem.closeInputFile(inputFileStream);
 
@@ -126,31 +132,37 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 			//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
 			FileStreamSystem.openFileInstream(inputFileStream, inputFile);
 			FileStreamSystem.fileCorrupt(inputFileStream);
+			
 			//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-			FileStreamSystem.clearFile(intermediateFileStream, intermediateFile);
+			for (int i = 0; i < RMAX; i++) {
+				string tempIntermediateFilePath = updateString(intermediateFile, to_string(i + 1));
+				FileStreamSystem.clearFile(intermediateFileStream, tempIntermediateFilePath);
+			}
+
 			//Initiate a variable to hold raw data given by the input file
 			string data{ "Unknown" };
 			//Keep collecting data until the end of file and get a return of "1"
-			int R = 0;
-			while (data != "-1")
+			int R{ 0 };
+			while (data != "1")
 			{
 				//Get a line of data from the input file
 				FileStreamSystem.readFromFile(inputFileStream, data);
 				//Check if data was not the end of file
-				if (data != "-1")
+				if (data != "1")
 				{
 					if (Map != NULL)
 					{
 						if (R == 0)
 						{
-							Map(intermediateFile, data);
-							R++;
+							string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
+							Map(newIntermediateFileName, data);
+							R = R + 1;
 						}
 						else
 						{
 							string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
 							Map(newIntermediateFileName, data);
-							R++;
+							R = R + 1;
 
 						}
 						R = R % RMAX;
@@ -170,134 +182,122 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 
 		//<-----------------Part 2------------------------------------------>
-		// Sorting and Reducing
-		// declare and initialize local variables.
-		string intermediateFilePath = intermediateFile; // intermediate file path
-		string outputFilePath = outputFile;
-		string* intermediateFilePathPntr = &intermediateFilePath;
-		string* outputFilePathPntr = &outputFilePath;
 
-		// Load the Reduce constructor from the ReduceLibrary DLL
-		HINSTANCE reduceDllHandle;
-		funcReduce Reduce;
-		const wchar_t* reduceLibraryName = L"ReduceLibrary";
+		// create an array of process handlers.
+		HANDLE* processesHandle;
 
-		// Load the library (DLL).
-		reduceDllHandle = LoadLibraryEx(reduceLibraryName, NULL, NULL);   // Handle to DLL
+		// allocate memory for the process handle array.
+		processesHandle = (HANDLE*)malloc(RMAX * sizeof(HANDLE));
 
-		// perform the following if the DLL was able to be loaded.
-		if (reduceDllHandle != NULL) {
+		// declare the startup info and process information objects.
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
 
-			// Load the Reduce constructor from the DLL.
-			Reduce = (funcReduce)GetProcAddress(reduceDllHandle, "Reduce");
+		// create the processes
+		for (int i = 0; i < RMAX; i++) {
 
-			// initialize local variables
-			ofstream outputFileStream;
+			// convert the process number to a string
+			string processNumber = std::to_string(i + 1);
 
-			// open the file for editing.
-			FileStreamSystem.clearFile(outputFileStream, outputFile);
+			// create an array to hold an integer in string form.
+			wchar_t wCharArray[255];
 
-			// create an instance of the Sorting class.
-			Sorting sortingObj(intermediateFilePathPntr);
+			// local variable for iterating through character array.
+			int index{ 0 };
 
-			// Create local variables. Input file stream object
-			ifstream inputFileStreamObj;
-			string line;
-			string entryString{ NULL };
-			string* entryStrPntr{ NULL };
-
-			// create a delimiter to find the following string: ")"
-			string closedParenthesis{ ")" };
-			string openParenthesis{ "(" };
-			size_t openPos{ NULL };
-			size_t closedPos{ NULL };
-
-			// local variables used to calculate the percentage
-			size_t wordsReduced{ 0 };
-			double percentageComplete{ 0 };
-			double percentageCompareValue{ 0.05 };
-			double percentageCompareIncrementValue{ 0.05 };
-
-			try {
-				// format the file.
-				sortingObj.format();
-
-				// inform the user.
-				cout << "\nWorkflow is now parsing the intermediate file and calling the Reduce class on each entry." << endl;
-
-				// open the intermediate file
-				FileStreamSystem.openFileInstream(inputFileStreamObj, *intermediateFilePathPntr);
-
-				// assign the entry string pointer
-				entryStrPntr = &entryString;
-
-				// get the first line from the file.
-				while (getline(inputFileStreamObj, line)) {
-
-					// find the position of the first open parenthesis
-					openPos = line.find(openParenthesis);
-
-					// offset for the find method of the string class.
-					size_t offset{ 0 };
-
-					// while there are words in this line, keep extracting them.
-					while (openPos != string::npos) {
-
-						// find the position of the closed parenthesis
-						closedPos = line.find(closedParenthesis, offset);
-
-						// if the open and closed parentheses were found, pass the substring to the reduce class.
-						if ((openPos != string::npos) && (closedPos != string::npos)) {
-
-							// extract the entry. 
-							entryString = line.substr(openPos, (closedPos - openPos) + 1);
-
-							// pass the string to the reduce method from the Reduce class.
-							Reduce(outputFilePath, entryString);
-						}
-
-						// update the offset into the line for the next search.
-						offset = closedPos + 1;
-
-						// Find the position of the next open parenthesis. 
-						openPos = line.find(openParenthesis, offset);
-					}
-				}
-
-				// Free the handle to the ReduceLibrary DLL.
-				FreeLibrary(reduceDllHandle);
-
-				//Check if there was a directory path
-				if (getOutputFileDirectoryLocation() == "")
-				{
-					// Print the SUCCESS.txt file to output directory.
-					FileStreamSystem.openFileOutstream(outputFileStream, "SUCCESS.txt");
-
-				}
-				else
-				{
-					// Print the SUCCESS.txt file to output directory.
-					FileStreamSystem.openFileOutstream(outputFileStream, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
-				}
-
-				// Close the SUCCESS.txt file.
-				FileStreamSystem.closeOutputFile(outputFileStream);
-
-				// 
-				cout << "\nSuccess. Program will now terminate." << endl;
+			// populate the character array with the intermediate file path
+			for (int i = 0; i < intermediateFile.size(); i++) {
+				wCharArray[index] = intermediateFile[i];
+				index = index + 1;
 			}
 
-			// catch any exception here
-			catch (...)
+			// insert a space
+			wCharArray[index] = ' ';
+			index = index + 1;
+
+			// populate the character array with the output file path
+			for (int i = 0; i < outputFile.size(); i++) {
+				wCharArray[index] = outputFile[i];
+				index = index + 1;
+			}
+
+			// insert a space
+			wCharArray[index] = ' ';
+			index = index + 1;
+
+
+			// insert the process number into the wCharArray
+			for (int i = 0; i < processNumber.size(); i++) {
+				wCharArray[index] = processNumber[i];
+				index = index + 1;
+			}
+
+			// end the string with the null character
+			wCharArray[index] = 0;
+
+			// convert the process number in string form to LPWSTR
+			LPWSTR allArgsLpwstr = wCharArray;
+
+			// zero the memory of the startup info object.
+			ZeroMemory(&si, sizeof(si));
+
+			// assign the size of the structure (cb) to the size of the object.
+			si.cb = sizeof(si);
+
+			// zero the memory of the process information object.
+			ZeroMemory(&pi, sizeof(pi));
+
+			// assign the processes handle array with this handle
+			processesHandle[i] = pi.hProcess;
+
+			// Start the child process. 
+			if (!CreateProcess(
+				L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+				allArgsLpwstr,        // Command line
+				NULL,           // Process handle not inheritable
+				NULL,           // Thread handle not inheritable
+				FALSE,          // Set handle inheritance to FALSE
+				0,              // No creation flags
+				NULL,           // Use parent's environment block
+				NULL,           // Use parent's starting directory 
+				&si,            // Pointer to STARTUPINFO structure
+				&pi)           // Pointer to PROCESS_INFORMATION structure
+				)
 			{
-				BOOST_LOG_TRIVIAL(fatal) << "Error in Workflow class inputIsFile function. Program will shutdown";
-				throw;
+				printf("CreateProcess failed (%d).\n", GetLastError());
+				//return -1;
 			}
 		}
-		else {
-			BOOST_LOG_TRIVIAL(fatal) << "Error loading ReduceLibrary DLL in Workflow::startProgram method. Program will shutdown";
-			throw;
+
+		// Wait until all child processes exit.
+		WaitForMultipleObjects(RMAX, processesHandle, TRUE, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		// create output file stream object
+		ofstream ofstreamObj;
+
+		//Check if there was a directory path
+		if (getOutputFileDirectoryLocation() == "")
+		{
+			// Print the SUCCESS.txt file to output directory.
+			FileStreamSystem.openFileOutstream(ofstreamObj, "SUCCESS.txt");
+
 		}
+		else
+		{
+			// Print the SUCCESS.txt file to output directory.
+			FileStreamSystem.openFileOutstream(ofstreamObj, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
+		}
+
+		// Close the SUCCESS.txt file.
+		FileStreamSystem.closeOutputFile(ofstreamObj);
+
+		// 
+		cout << "\nSuccess. Program will now terminate." << endl;
+
 	}
 	else {
 		BOOST_LOG_TRIVIAL(fatal) << "Error loading MapLibrary DLL in Workflow::startProgram method. Program will shutdown.";
@@ -488,9 +488,9 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 
 string Workflow::updateString(string origional, string toAdd)
 {
-	
+
 	int strLength = origional.size();
-	return origional.substr(0, strLength-4) + toAdd + origional.substr(strLength-4);
+	return origional.substr(0, strLength - 4) + toAdd + origional.substr(strLength - 4);
 
 }
 //**********Setters**********
