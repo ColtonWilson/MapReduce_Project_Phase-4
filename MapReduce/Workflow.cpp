@@ -43,144 +43,68 @@ Workflow::~Workflow() {}
 //**********Member Function**********
 
 
-//Path to run if input is a File
 void Workflow::startProgram(string inputFile, string intermediateFile, string outputFile)
 {
-	HINSTANCE mapLibraryHandle;
-	funcMap Map;
-	const wchar_t* libName = L"MapLibrary";
 
-	mapLibraryHandle = LoadLibraryEx(libName, NULL, NULL);   // Handle to DLL
+		//<-----------------Part 1------------------------------------------>
 
-	// perform the following if the mapLibraryHandle is not NULL
-	if (mapLibraryHandle != NULL) {
+	//Create an input and output stream class
+	ifstream inputFileStream;
+	ofstream intermediateFileStream;
 
-		Map = (funcMap)GetProcAddress(mapLibraryHandle, "Map");
+	//Create an object of the FileManagement class
+	FileManagement FileStreamSystem;
 
-		// Writing from input file to intermediate file
-		//Create an input and output stream class
-		ifstream inputFileStream;
-		ofstream intermediateFileStream;
+	//Clear all intermediate files
+	int strLength = intermediateFile.size();
+	for (int i = 1; i <= RMAX; i++)
+	{
+		string newIntermediateFileName = intermediateFile.substr(0, strLength - 4) + std::to_string(i) + intermediateFile.substr(strLength - 4);
+		//Open file and then close to clear the contents
+		intermediateFileStream.open(newIntermediateFileName);
+		intermediateFileStream.close();
 
-		//Create an object of the FileManagement class
-		FileManagement FileStreamSystem;
+	}
 
-		if (boost::filesystem::is_directory(inputFile))
+	if (boost::filesystem::is_directory(inputFile))
+	{
+		// insert all of the files in the directory inside a vector of strings.
+		vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
+
+		for (auto str : listOfFiles)
 		{
-			//<-----------------Part 1 for directory given------------------------------------------>
-			//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-			for (int i = 0; i < RMAX; i++) {
-				string tempIntermediateFilePath = updateString(intermediateFile, to_string(i + 1));
-				FileStreamSystem.clearFile(intermediateFileStream, tempIntermediateFilePath);
-			}
-
-			// insert all of the files in the directory inside a vector of strings.
-			vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
-
-			for (auto str : listOfFiles)
-			{
-				cout << str << endl;
-			}
-
-			cout << "*************************************************************************" << endl;
-			//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-			for (auto str : listOfFiles)
-			{
-				FileStreamSystem.openFileInstream(inputFileStream, str);
-				FileStreamSystem.fileCorrupt(inputFileStream);
-
-				//Initiate a variable to hold raw data given by the input file
-				string data{ "Unknown" };
-				//Keep collecting data until the end of file and get a return of "1"
-				int R = 0;
-				while (data != "1")
-				{
-					//Get a line of data from the input file
-					FileStreamSystem.readFromFile(inputFileStream, data);
-					//Check if data was not the end of file
-					if (data != "1")
-					{
-						if (Map != NULL)
-						{
-							if (R == 0)
-							{
-								string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
-								Map(newIntermediateFileName, data);
-								R++;
-							}
-							else
-							{
-								string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
-								Map(newIntermediateFileName, data);
-								R++;
-
-							}
-							R = R % RMAX;
-
-						}
-						else
-							std::cout << "Did not load Map correctly." << std::endl;
-					}
-				}
-				FileStreamSystem.closeInputFile(inputFileStream);
-
-			}
-		}
-		else
-		{
-			//<-----------------Part 1 for file given------------------------------------------>
-			//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-			FileStreamSystem.openFileInstream(inputFileStream, inputFile);
-			FileStreamSystem.fileCorrupt(inputFileStream);
+			cout << str << endl;
 			
-			//Clear the contents of the intermediate file which will hold the output of the Map class. This will also close the stream
-			for (int i = 0; i < RMAX; i++) {
-				string tempIntermediateFilePath = updateString(intermediateFile, to_string(i + 1));
-				FileStreamSystem.clearFile(intermediateFileStream, tempIntermediateFilePath);
-			}
-
-			//Initiate a variable to hold raw data given by the input file
-			string data{ "Unknown" };
-			//Keep collecting data until the end of file and get a return of "1"
-			int R{ 0 };
-			while (data != "1")
-			{
-				//Get a line of data from the input file
-				FileStreamSystem.readFromFile(inputFileStream, data);
-				//Check if data was not the end of file
-				if (data != "1")
-				{
-					if (Map != NULL)
-					{
-						if (R == 0)
-						{
-							string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
-							Map(newIntermediateFileName, data);
-							R = R + 1;
-						}
-						else
-						{
-							string newIntermediateFileName = updateString(intermediateFile, to_string(R + 1));
-							Map(newIntermediateFileName, data);
-							R = R + 1;
-
-						}
-						R = R % RMAX;
-
-					}
-					else
-						std::cout << "Did not load Map correctly." << std::endl;
-				}
-			}
-
-			FileStreamSystem.closeInputFile(inputFileStream);
-
 		}
 
-		// Free the handle to the MapLibrary DLL.
-		FreeLibrary(mapLibraryHandle);
+		cout << "*************************************************************************************" << endl;
+		//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
+		for (auto str : listOfFiles)
+		{
+			//Banner Message
+			cout << "*************************************************************************************"
+				<< "\nMap process created for: " << str << "\n\n";
+			cout.flush();
+			partition(str, intermediateFile);
+		}
+
+		
+	}// end if/else if input is directory
+	else
+	{
+		//Banner Message
+		cout << "*************************************************************************************"
+			<< "\nMap process created for: " << inputFile << "\n\n";
+		cout.flush();
+		partition(inputFile, intermediateFile);
+
+	
+	}//End of if/else if input is a file
 
 
+	std::this_thread::sleep_for(std::chrono::seconds(240));
+	cout << "\nPress enter to continue: ";
+	getchar();
 		//<-----------------Part 2------------------------------------------>
 
 		// create an array of process handlers.
@@ -206,8 +130,16 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 			int index{ 0 };
 
 			// populate the character array with the intermediate file path
-			for (int i = 0; i < intermediateFile.size(); i++) {
-				wCharArray[index] = intermediateFile[i];
+			for (int i = 0; i < intermediateFile.size(); i++)
+			{
+				if (intermediateFile[i] == ' ')
+				{
+					wCharArray[index] = '\n';
+				}
+				else
+				{
+					wCharArray[index] = intermediateFile[i];
+				}
 				index = index + 1;
 			}
 
@@ -216,8 +148,16 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 			index = index + 1;
 
 			// populate the character array with the output file path
-			for (int i = 0; i < outputFile.size(); i++) {
-				wCharArray[index] = outputFile[i];
+			for (int i = 0; i < outputFile.size(); i++)
+			{
+				if (outputFile[i] == ' ')
+				{
+					wCharArray[index] = '\n';
+				}
+				else
+				{
+					wCharArray[index] = outputFile[i];
+				}
 				index = index + 1;
 			}
 
@@ -252,7 +192,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 			// Start the child process. 
 			if (!CreateProcess(
-				L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+				L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
 				allArgsLpwstr,        // Command line
 				NULL,           // Process handle not inheritable
 				NULL,           // Thread handle not inheritable
@@ -298,11 +238,132 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		// 
 		cout << "\nSuccess. Program will now terminate." << endl;
 
+
+}
+
+void Workflow::partition(const string& inputFile, const string& intermediateFile)
+{
+
+	for (int i = 0; i < RMAX; i++)
+	{
+		// create an array of process handlers.
+		HANDLE* processesHandleMap;
+
+		// allocate memory for the process handle array.
+		processesHandleMap = (HANDLE*)malloc(RMAX * sizeof(HANDLE));
+
+		// declare the startup info and process information objects.
+		STARTUPINFO siMap;
+		PROCESS_INFORMATION piMap;
+
+		// convert the process number to a string
+		string processNumber = std::to_string(i + 1);
+
+		// convert the RMAX number to a string
+		string rMaxNumber = std::to_string(RMAX);
+
+		// create an array to hold an integer in string form.
+		wchar_t wCharArray[750];
+
+		// local variable for iterating through character array.
+		int index{ 0 };
+
+		// populate the character array with the intermediate file path
+		for (int i = 0; i < inputFile.size(); i++)
+		{
+			if (inputFile[i] == ' ')
+			{
+				wCharArray[index] = '\n';
+			}
+			else
+			{
+				wCharArray[index] = inputFile[i];
+			}
+
+			index = index + 1;
+		}
+
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+		// populate the character array with the output file path
+		for (int i = 0; i < intermediateFile.size(); i++)
+		{
+			if (intermediateFile[i] == ' ')
+			{
+				wCharArray[index] = '\n';
+			}
+			else
+			{
+				wCharArray[index] = intermediateFile[i];
+			}
+			index = index + 1;
+		}
+
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+
+		// insert the process number into the wCharArray
+		for (int i = 0; i < processNumber.size(); i++) {
+			wCharArray[index] = processNumber[i];
+			index = index + 1;
+		}
+
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+		// insert the process number into the wCharArray
+		for (int i = 0; i < rMaxNumber.size(); i++) {
+			wCharArray[index] = rMaxNumber[i];
+			index = index + 1;
+		}
+
+		// end the string with the null character
+		wCharArray[index] = 0;
+
+		// convert the process number in string form to LPWSTR
+		LPWSTR allArgsLpwstr = wCharArray;
+
+		// zero the memory of the startup info object.
+		ZeroMemory(&siMap, sizeof(siMap));
+
+		// assign the size of the structure (cb) to the size of the object.
+		siMap.cb = sizeof(siMap);
+
+		// zero the memory of the process information object.
+		ZeroMemory(&piMap, sizeof(piMap));
+
+		// Start the child process. 
+		if (!CreateProcess(
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			allArgsLpwstr,        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&siMap,            // Pointer to STARTUPINFO structure
+			&piMap)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			//return -1;
+		}
+
+		// Wait until all child processes exit.
+		WaitForMultipleObjects(RMAX, processesHandleMap, TRUE, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(piMap.hProcess);
+		CloseHandle(piMap.hThread);
+
 	}
-	else {
-		BOOST_LOG_TRIVIAL(fatal) << "Error loading MapLibrary DLL in Workflow::startProgram method. Program will shutdown.";
-		throw;
-	}
+
 }
 
 // Get File Name from a Path with or without extension

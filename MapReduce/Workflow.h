@@ -26,6 +26,8 @@ The public data member functions are setters and getters for each data member.
 #include <Windows.h>
 #include <fstream>
 #include <string>
+#include <thread>
+#include <chrono>
 #include <filesystem>
 #include <stdexcept> // contains runtime_error
 #include <boost/log/trivial.hpp>
@@ -113,6 +115,7 @@ public:
 	//update value in outputFileDirectoryLocation
 	void setOutputFileDirectoryLocation(const string& userOutputFile);
 
+	void partition(const string& inputFile, const string& intermediateFile);
 
 	//**********Getters**********
 
