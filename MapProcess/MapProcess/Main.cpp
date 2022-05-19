@@ -93,18 +93,15 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-
 	//Initiate variables to hold the names of the directory locations
 	string inputFileName{ "Unknown" };
 	string intermediateFileName{ "Unknown" };
 	string outputFileName{ "Unknown" };
 
-
-	//<-----------------Part 1------------------------------------------>
-	
 	// Mapping
 	// convert the data to a string
 	string inputFile = argv[0];
+
 	//convert data back
 	for (int i = 0; i < inputFile.size(); i++)
 	{
@@ -118,14 +115,10 @@ int main(int argc, char* argv[])
 		}
 
 	}
-	
+
 	// store the process number.
 	string processNumber = argv[2];
 
-	
-	// store the RMAX number.
-	string rMaxNumber = argv[3];
-	
 	// convert the intermediate file path to a string
 	string intermediateFilePath = argv[1];
 
@@ -142,14 +135,13 @@ int main(int argc, char* argv[])
 		}
 
 	}
-	
-	// retrieve the size of the intermediate 
+
+	// retrieve the size of the intermediate file path.
 	int intermediateFilePathSize = intermediateFilePath.size();
-	
+
 	// alter the intermediate file path.
 	string alteredIntermediateFilePath = intermediateFilePath.substr(0, intermediateFilePathSize - 4) + processNumber + intermediateFilePath.substr(intermediateFilePathSize - 4);
 
-	
 	// assign pointers to the files.
 	string* inputFilePntr = &inputFile;
 	string* intermediateFilePathPntr = &alteredIntermediateFilePath;
@@ -178,24 +170,17 @@ int main(int argc, char* argv[])
 
 		//Initiate a variable to hold raw data given by the input file
 		string data{ "Unknown" };
-		int pNum = std::stoi(processNumber);
-		int rMax = std::stoi(rMaxNumber);
-		int R{ pNum };
 
-		
 		//Keep collecting data until the end of file and get a return of "1"
 		while (data != "1")
 		{
 			//Get a line of data from the input file
-			FileStreamSystem.readFromFile(inputFileStream, data, R);
+			FileStreamSystem.readFromFile(inputFileStream, data);
 
 			if (data != "1")
 			{
 				Map(alteredIntermediateFilePath, data);
 			}
-
-			R = (rMax);
-
 		}
 
 		// Free the handle to the MapLibrary DLL.
