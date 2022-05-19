@@ -17,7 +17,6 @@ A function fileCorrupt() to check to see if a input file is corrupt.
 A function writeToTempFile() to write to an output file
 A function readFromFile() to return a string of one line of rawData from the file.
 
-
 */
 
 // Header Guard
@@ -36,9 +35,6 @@ A function readFromFile() to return a string of one line of rawData from the fil
 #include <boost/filesystem.hpp>
 #include <stdlib.h>
 
-
-
-
 //Name spaces
 using std::cout;
 using std::endl;
@@ -49,15 +45,12 @@ using std::vector;
 
 using std::runtime_error;
 
-
-
 class FileManagement
 {
 public:
 	//default constructor
 	FileManagement();
 
-	
 	//**********Member Functions**********
 	vector<string> getAllFilesInDir(const string& dirPath, const vector<string> dirSkipList = { });
 
@@ -93,6 +86,10 @@ public:
 	//Post-Condition:File is update with string data
 	//Write into a temporary file
 	void writeToTempFile(ofstream& fileStream, const string& data);
+
+	//Pre-Condition:File stream has been created and file is open
+	//Post-Condition: the data is written to the file.
+	void writeToOutputFile(ofstream& fileStream, string& data);
 	
 	//Pre-Condition:
 	//Post-Condition:
@@ -103,8 +100,6 @@ public:
 	//Post-Condition: string data is updated with a line of raw data from input file
 	//grab a line of data from the input file
 	void readFromFile(ifstream& fileStream, string& data);
-
-
 	
 	//Pre-Condition:File stream has been created
 	//Post-Condition:File is empty
@@ -115,8 +110,6 @@ public:
 	~FileManagement();
 
 private:
-	
-
 
 };
 #endif
