@@ -8,7 +8,7 @@ Project 1
 
 Main.cpp
 
-Below is Main.cpp file. 
+Below is Main.cpp file.
 This file has the main() function for the ReduceProcess.exe file.
 
 It takes 3 command line arguments.
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 
 	//Start timer
 	boost::timer::auto_cpu_timer t(3, "%w seconds\n");
-	
+
 	//Initiate variables to hold the names of the directory locations
 	string inputFileName{ "Unknown" };
 	string intermediateFileName{ "Unknown" };
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 
 	//<-----------------Part 2------------------------------------------>
 	// Sorting and Reducing
-	
+
 	// convert the file path to a string
 	string intermediateFilePath = argv[0];
 	//convert file path back to normal
@@ -122,14 +122,9 @@ int main(int argc, char* argv[])
 	// store the process number.
 	string processNumber = argv[2];
 
-	// retrieve the size of the output 
-	int intermediateFilePathSize = intermediateFilePath.size();
-
-	// alter the output file path.
-	string alteredIntermediateFilePath = intermediateFilePath.substr(0, intermediateFilePathSize - 4) + processNumber + intermediateFilePath.substr(intermediateFilePathSize - 4);
-
 	// convert the output file path to a string
 	string outputFilePath = argv[1];
+
 	//convert filepath back to normal
 	for (int i = 0; i < outputFilePath.size(); i++)
 	{
@@ -142,7 +137,8 @@ int main(int argc, char* argv[])
 			outputFilePath[i] = outputFilePath[i];
 		}
 
-	}
+	}	
+
 	// retrieve the size of the output 
 	int outputFilePathSize = outputFilePath.size();
 
@@ -150,7 +146,7 @@ int main(int argc, char* argv[])
 	string alteredOutputFilePath = outputFilePath.substr(0, outputFilePathSize - 4) + processNumber + outputFilePath.substr(outputFilePathSize - 4);
 
 	// assign pointers to the files.
-	string* intermediateFilePathPntr = &alteredIntermediateFilePath;
+	string* intermediateFilePathPntr = &intermediateFilePath;
 	string* outputFilePathPntr = &alteredOutputFilePath;
 
 	// Load the Reduce constructor from the ReduceLibrary DLL
