@@ -15,17 +15,12 @@ The is a default constructor and no data members.
 The member functions include an open and close for both input and output streams.
 A function fileCorrupt() to check to see if a input file is corrupt.
 A function writeToTempFile() to write to an output file
-A function readFromFile() to return a string of one line of rawData from the file. 
-
+A function readFromFile() to return a string of one line of rawData from the file.
 
 */
 
-
-
 //Directives
 #include "FileManagement.h"
-
-
 
 //Name spaces
 using std::cout;
@@ -36,7 +31,6 @@ using std::ofstream;
 using std::vector;
 
 namespace filesys = boost::filesystem;
-
 
 //default constructor
 FileManagement::FileManagement() {}
@@ -52,43 +46,43 @@ vector<string> FileManagement::getAllFilesInDir(const string& dirPath, const vec
 
 	try {
 		// Check if given path exists and points to a directory
-        if (filesys::exists(dirPath) && filesys::is_directory(dirPath))
-        {
-            // Create a Recursive Directory Iterator object and points to the starting of directory
-            filesys::recursive_directory_iterator iter(dirPath);
-            // Create a Recursive Directory Iterator object pointing to end.
-            filesys::recursive_directory_iterator end;
-            // Iterate till end
-            while (iter != end)
-            {
-                // Check if current entry is a directory and if exists in skip list
-                if (filesys::is_directory(iter->path()) &&
-                    (std::find(dirSkipList.begin(), dirSkipList.end(), iter->path().filename()) != dirSkipList.end()))
-                {
-                    // Skip the iteration of current directory pointed by iterator
-                    // Boost Fileystsem  API to skip current directory iteration
-                    iter.no_push();
+		if (filesys::exists(dirPath) && filesys::is_directory(dirPath))
+		{
+			// Create a Recursive Directory Iterator object and points to the starting of directory
+			filesys::recursive_directory_iterator iter(dirPath);
+			// Create a Recursive Directory Iterator object pointing to end.
+			filesys::recursive_directory_iterator end;
+			// Iterate till end
+			while (iter != end)
+			{
+				// Check if current entry is a directory and if exists in skip list
+				if (filesys::is_directory(iter->path()) &&
+					(std::find(dirSkipList.begin(), dirSkipList.end(), iter->path().filename()) != dirSkipList.end()))
+				{
+					// Skip the iteration of current directory pointed by iterator
+					// Boost Fileystsem  API to skip current directory iteration
+					iter.no_push();
 
-                }
-                else
-                {
-                    // Add the name in vector
-                    listOfFiles.push_back(iter->path().string());
-                }
-                boost::system::error_code ec;
-                // Increment the iterator to point to next entry in recursive iteration
-                iter.increment(ec);
-                if (ec) {
-                    std::cerr << "Error While Accessing : " << iter->path().string() << " :: " << ec.message() << '\n';
-                }
-            }
-        }
-    }
-    catch (std::system_error& e)
-    {
-        std::cerr << "Exception :: " << e.what();
-    }
-    return listOfFiles;
+				}
+				else
+				{
+					// Add the name in vector
+					listOfFiles.push_back(iter->path().string());
+				}
+				boost::system::error_code ec;
+				// Increment the iterator to point to next entry in recursive iteration
+				iter.increment(ec);
+				if (ec) {
+					std::cerr << "Error While Accessing : " << iter->path().string() << " :: " << ec.message() << '\n';
+				}
+			}
+		}
+	}
+	catch (std::system_error& e)
+	{
+		std::cerr << "Exception :: " << e.what();
+	}
+	return listOfFiles;
 }
 
 
@@ -173,49 +167,29 @@ void FileManagement::writeToOutputFile(ofstream& fileStream, string key, size_t 
 
 }
 //To read a line of raw data from the input file
-void FileManagement::readFromFile( ifstream& fileStream, string& data, const int& Nline)
+void FileManagement::readFromFile(ifstream& fileStream, string& data)
 {
-	std::string s;
-	//for performance
-	s.reserve(75);
-
 	//If reached the end of the file, return one
 	if (fileStream.eof())
 	{
-		data = "1";	
+		data = "1";
 	}
 	else
 	{
-		//skip N lines
-		for (int i = 1; i < Nline; ++i)
-			std::getline(fileStream, s);
-		
-		if (fileStream.eof())
-		{
-			data = "1";
-		}
-		else
-		{
-			std::getline(fileStream, data);
-		}
-		
+		std::getline(fileStream, data);
 	}
-		
-		
-	
-	
 }
 
 
 //Clear file of anything written.
-void FileManagement::clearFile(ofstream& fileStream, const string& userFile) 
+void FileManagement::clearFile(ofstream& fileStream, const string& userFile)
 {
 	//Open file and then close to clear the contents
-	fileStream.open(userFile); 
+	fileStream.open(userFile);
 	closeOutputFile(fileStream);
 }
 
 //close an input file
 void FileManagement::closeInputFile(ifstream& fileToClose) { fileToClose.close(); }
 //close an output file
-void FileManagement::closeOutputFile(ofstream& fileToClose){ fileToClose.close(); }
+void FileManagement::closeOutputFile(ofstream& fileToClose) { fileToClose.close(); }
