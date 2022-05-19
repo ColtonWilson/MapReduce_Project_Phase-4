@@ -115,6 +115,8 @@ public:
 	//update value in outputFileDirectoryLocation
 	void setOutputFileDirectoryLocation(const string& userOutputFile);
 
+	//Pre-condition: None
+	//Post-condition: Divides input file amoung RMAX number of processes.
 	void partition(const string& inputFile, const string& intermediateFile);
 
 	//**********Getters**********
