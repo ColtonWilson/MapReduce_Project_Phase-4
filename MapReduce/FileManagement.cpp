@@ -17,15 +17,10 @@ A function fileCorrupt() to check to see if a input file is corrupt.
 A function writeToTempFile() to write to an output file
 A function readFromFile() to return a string of one line of rawData from the file. 
 
-
 */
-
-
 
 //Directives
 #include "FileManagement.h"
-
-
 
 //Name spaces
 using std::cout;
@@ -36,7 +31,6 @@ using std::ofstream;
 using std::vector;
 
 namespace filesys = boost::filesystem;
-
 
 //default constructor
 FileManagement::FileManagement() {}
@@ -170,8 +164,13 @@ void FileManagement::writeToOutputFile(ofstream& fileStream, string key, size_t 
 {
 	// write the output to the text file in the proper format.
 	fileStream << "(\"" << key << "\"), " << std::to_string(sum) << "\n";
-
 }
+
+// write the data to the file.
+void FileManagement::writeToOutputFile(ofstream& fileStream, string& data) {
+	fileStream << data << endl;
+}
+
 //To read a line of raw data from the input file
 void FileManagement::readFromFile( ifstream& fileStream, string& data)
 {
@@ -185,10 +184,6 @@ void FileManagement::readFromFile( ifstream& fileStream, string& data)
 	{
 		std::getline(fileStream, data);
 	}
-		
-		
-	
-	
 }
 
 
