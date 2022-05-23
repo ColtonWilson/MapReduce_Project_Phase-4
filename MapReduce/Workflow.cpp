@@ -189,7 +189,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
@@ -224,6 +224,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 	int intermediateFileNameSize = intermediateFile.size();
 
+	
 	// delete the temporary files.
 	for (int i = 1; i <= RMAX; i++)
 	{
@@ -239,8 +240,112 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		remove(interFileChar);
 	}
 
-	// create output file stream object
+
+	//open stream for the output file
 	ofstream ofstreamObj;
+	//clear the file
+	FileStreamSystem.clearFile(ofStreamObj, outputFile);
+	
+
+	//save the size of output file
+	int outputFileNameSize = outputFile.size();
+
+	//vectors to store word and count
+	vector<string>wordVec;
+	vector<int>countVec;
+	vector<string>wordCheckVec;
+	vector<int>countCheckVec;
+
+	string word;
+	string number;
+	
+	//Combine output files
+	for (int i = 1; i <= RMAX; i++)
+	{
+		
+
+		// add the correct extension to the files based on their process number.
+		string newOutputFileName = outputFile.substr(0, outputFileNameSize - 4) + std::to_string(i) + outputFile.substr(outputFileNameSize - 4);
+
+		//open the stream and the file to read from
+		ifstream ifstreamObj;
+		FileStreamSystem.openFileInstream(ifstreamObj, newOutputFileName);
+
+		if (i == 1)
+		{
+			while (std::getline(ifstreamObj, word, ','))
+			{
+				wordVec.push_back(word);
+				std::getline(ifstreamObj, number);
+				countVec.push_back(stoi(number));
+			}
+		}
+		else
+		{
+			
+			while (std::getline(ifstreamObj, word, ','))
+			{
+				wordCheckVec.push_back(word);
+				std::getline(ifstreamObj, number);
+				countCheckVec.push_back(stoi(number));
+			}
+
+			for (int i = 0; i < wordVec.size(); i++)
+			{
+				for (int j = 0; j < wordCheckVec.size(); j++)
+				{
+					if (wordVec[i] == wordCheckVec[j])
+					{
+						countVec[i] = countVec[i] + countCheckVec[j];
+						wordCheckVec.erase(wordCheckVec.begin()+j);
+						countCheckVec.erase(countCheckVec.begin() + j);
+						j--;
+					}
+
+				}
+				
+			}
+			for (int k = 0; k < wordCheckVec.size(); k++)
+			{
+				wordVec.push_back(wordCheckVec[k]);
+				countVec.push_back(countCheckVec[k]);
+			}
+
+			wordCheckVec.clear();
+			countCheckVec.clear();
+
+		}
+		
+		// convert strings to const char* for remove method.
+		const char* outputFileChar = newOutputFileName.c_str();
+
+		//close the input file
+		FileStreamSystem.closeInputFile(ifstreamObj);
+
+		
+		//Open file and then close to clear the contents
+		ofStreamObj.open(newOutputFileName);
+		ofStreamObj.close();
+		remove(outputFileChar);
+	}
+
+	// open output file to write too
+	FileStreamSystem.openFileOutstream(ofstreamObj, outputFile);
+	
+
+	cout << "word size: " << wordVec.size() << '\n';
+	cout << "count. size: " << countVec.size() << '\n';
+
+	for (int i = 0; i < wordVec.size(); i++)
+	{
+		ofstreamObj << wordVec[i] << ", " << to_string(countVec[i]) << endl;
+	}
+
+	
+
+	// Close the output.txt file.
+	FileStreamSystem.closeOutputFile(ofstreamObj);
+
 
 	//Check if there was a directory path
 	if (getOutputFileDirectoryLocation() == "")
@@ -258,28 +363,6 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	// Close the SUCCESS.txt file.
 	FileStreamSystem.closeOutputFile(ofstreamObj);
 
-	/*
-	// delete the temporary files.
-	for (int i = 1; i <= RMAX; i++)
-	{
-		// add the correct extension to the files based on their process number.
-		string newInputFileName = inputFile.substr(0, inputFileNameSize - 4) + std::to_string(i) + inputFile.substr(inputFileNameSize - 4);
-		string newIntermediateFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + intermediateFile.substr(intermediateFileNameSize - 4);
-
-		// convert strings to const char* for remove method.
-		const char* inFileChar = newInputFileName.c_str();
-		const char* interMedFileChar = newIntermediateFileName.c_str();
-
-		//Open file and then close to clear the contents
-		ofStreamObj.open(newInputFileName);
-		ofStreamObj.close();
-		remove(inFileChar);
-
-		ofStreamObj.open(newIntermediateFileName);
-		ofStreamObj.close();
-		remove(interMedFileChar);
-	}
-	*/
 
 	// insert delay
 	std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -476,7 +559,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
