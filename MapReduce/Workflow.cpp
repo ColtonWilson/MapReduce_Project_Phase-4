@@ -19,6 +19,7 @@ The public data member functions are setters and getters for each data member.
 
 //Constant R, how many buckets are being used
 const int RMAX{ 5 };
+const int TMAX{ 5 };
 
 //Directives
 #include "Workflow.h"
@@ -99,7 +100,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	vector<HANDLE> processHandleVector;
 	vector<HANDLE> processThreadVector;
 
-	// create the processes
+	// create the Reduce processes.
 	for (int i = 0; i < RMAX; i++) {
 
 		// create an array of process handlers.
@@ -114,6 +115,9 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 		// convert the process number to a string
 		string processNumber = std::to_string(i + 1);
+
+		// convert the thread number to a string
+		string threadNumber = std::to_string(TMAX);
 
 		// create an array to hold an integer in string form.
 		wchar_t wCharArray[255];
@@ -162,10 +166,19 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		wCharArray[index] = ' ';
 		index = index + 1;
 
-
 		// insert the process number into the wCharArray
 		for (int i = 0; i < processNumber.size(); i++) {
 			wCharArray[index] = processNumber[i];
+			index = index + 1;
+		}
+
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+		// insert the thread number into the wCharArray
+		for (int i = 0; i < threadNumber.size(); i++) {
+			wCharArray[index] = threadNumber[i];
 			index = index + 1;
 		}
 
@@ -189,7 +202,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
@@ -223,30 +236,33 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	}
 
 	int intermediateFileNameSize = intermediateFile.size();
-
+	int outputFileSize = outputFile.size();
 	
 	// delete the temporary files.
 	for (int i = 1; i <= RMAX; i++)
 	{
 		// add the correct extension to the files based on their process number.
 		string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + intermediateFile.substr(intermediateFileNameSize - 4);
+		string newOutputFileName = outputFile.substr(0, outputFileSize - 4) + std::to_string(i) + outputFile.substr(outputFileSize - 4);
 
 		// convert strings to const char* for remove method.
 		const char* interFileChar = newIntermedFileName.c_str();
+		const char* outputFileChar = newOutputFileName.c_str();
 
 		//Open file and then close to clear the contents
 		ofStreamObj.open(newIntermedFileName);
 		ofStreamObj.close();
 		remove(interFileChar);
+		ofStreamObj.open(newOutputFileName);
+		ofStreamObj.close();
+		remove(outputFileChar);
 	}
-
 
 	//open stream for the output file
 	ofstream ofstreamObj;
 	//clear the file
 	FileStreamSystem.clearFile(ofStreamObj, outputFile);
 	
-
 	//save the size of output file
 	int outputFileNameSize = outputFile.size();
 
@@ -260,79 +276,76 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	string number;
 	
 	//Combine output files
-	for (int i = 1; i <= RMAX; i++)
-	{
-		
+	for (int i = 1; i <= RMAX; i++) {
+		for (int j = 1; j <= TMAX; j++) {
+			// add the correct extension to the files based on their process number.
+			string newOutputFileName = outputFile.substr(0, outputFileNameSize - 4) + std::to_string(i) + std::to_string(j) + outputFile.substr(outputFileNameSize - 4);
 
-		// add the correct extension to the files based on their process number.
-		string newOutputFileName = outputFile.substr(0, outputFileNameSize - 4) + std::to_string(i) + outputFile.substr(outputFileNameSize - 4);
+			//open the stream and the file to read from
+			ifstream ifstreamObj;
+			FileStreamSystem.openFileInstream(ifstreamObj, newOutputFileName);
 
-		//open the stream and the file to read from
-		ifstream ifstreamObj;
-		FileStreamSystem.openFileInstream(ifstreamObj, newOutputFileName);
-
-		if (i == 1)
-		{
-			while (std::getline(ifstreamObj, word, ','))
+			if (i == 1)
 			{
-				wordVec.push_back(word);
-				std::getline(ifstreamObj, number);
-				countVec.push_back(stoi(number));
-			}
-		}
-		else
-		{
-			
-			while (std::getline(ifstreamObj, word, ','))
-			{
-				wordCheckVec.push_back(word);
-				std::getline(ifstreamObj, number);
-				countCheckVec.push_back(stoi(number));
-			}
-
-			for (int i = 0; i < wordVec.size(); i++)
-			{
-				for (int j = 0; j < wordCheckVec.size(); j++)
+				while (std::getline(ifstreamObj, word, ','))
 				{
-					if (wordVec[i] == wordCheckVec[j])
-					{
-						countVec[i] = countVec[i] + countCheckVec[j];
-						wordCheckVec.erase(wordCheckVec.begin()+j);
-						countCheckVec.erase(countCheckVec.begin() + j);
-						j--;
-					}
-
+					wordVec.push_back(word);
+					std::getline(ifstreamObj, number);
+					countVec.push_back(stoi(number));
 				}
-				
 			}
-			for (int k = 0; k < wordCheckVec.size(); k++)
+			else
 			{
-				wordVec.push_back(wordCheckVec[k]);
-				countVec.push_back(countCheckVec[k]);
+			
+				while (std::getline(ifstreamObj, word, ','))
+				{
+					wordCheckVec.push_back(word);
+					std::getline(ifstreamObj, number);
+					countCheckVec.push_back(stoi(number));
+				}
+
+				for (int i = 0; i < wordVec.size(); i++)
+				{
+					for (int j = 0; j < wordCheckVec.size(); j++)
+					{
+						if (wordVec[i] == wordCheckVec[j])
+						{
+							countVec[i] = countVec[i] + countCheckVec[j];
+							wordCheckVec.erase(wordCheckVec.begin()+j);
+							countCheckVec.erase(countCheckVec.begin() + j);
+							j--;
+						}
+
+					}
+				
+				}
+				for (int k = 0; k < wordCheckVec.size(); k++)
+				{
+					wordVec.push_back(wordCheckVec[k]);
+					countVec.push_back(countCheckVec[k]);
+				}
+
+				wordCheckVec.clear();
+				countCheckVec.clear();
+
 			}
+		
+			// convert strings to const char* for remove method.
+			const char* outputFileChar = newOutputFileName.c_str();
 
-			wordCheckVec.clear();
-			countCheckVec.clear();
-
+			//close the input file
+			FileStreamSystem.closeInputFile(ifstreamObj);
+		
+			//Open file and then close to clear the contents
+			ofStreamObj.open(newOutputFileName);
+			ofStreamObj.close();
+			remove(outputFileChar);
 		}
-		
-		// convert strings to const char* for remove method.
-		const char* outputFileChar = newOutputFileName.c_str();
-
-		//close the input file
-		FileStreamSystem.closeInputFile(ifstreamObj);
-
-		
-		//Open file and then close to clear the contents
-		ofStreamObj.open(newOutputFileName);
-		ofStreamObj.close();
-		remove(outputFileChar);
 	}
 
-	// open output file to write too
+	// open output file to write to
 	FileStreamSystem.openFileOutstream(ofstreamObj, outputFile);
 	
-
 	cout << "word size: " << wordVec.size() << '\n';
 	cout << "count. size: " << countVec.size() << '\n';
 
@@ -341,11 +354,9 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		ofstreamObj << wordVec[i] << ", " << to_string(countVec[i]) << endl;
 	}
 
-	
-
 	// Close the output.txt file.
 	FileStreamSystem.closeOutputFile(ofstreamObj);
-
+	
 
 	//Check if there was a directory path
 	if (getOutputFileDirectoryLocation() == "")
@@ -559,7 +570,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-two\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
