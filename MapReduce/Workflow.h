@@ -42,9 +42,6 @@ using std::vector;
 using std::runtime_error;
 using boost::filesystem::recursive_directory_iterator;
 
-typedef void (*funcMap)(string, string);
-typedef void (*funcReduce)(string, string);
-
 class Workflow
 {
 public:
