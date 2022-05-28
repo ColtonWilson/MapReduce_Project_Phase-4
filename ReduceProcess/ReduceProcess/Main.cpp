@@ -4,17 +4,18 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-5/15/2022
+5/28/2022
 
 Main.cpp
 
 Below is Main.cpp file.
 This file has the main() function for the ReduceProcess.exe file.
 
-It takes 3 command line arguments.
+It takes 4 command line arguments.
 - IntermediateFilePath
 - OutputFilePath
 - Process Number
+- Number of threads to create.
 
 The process number ranges from 1 to the defined max number of processes.
 
@@ -24,7 +25,7 @@ The process number ranges from 1 to the defined max number of processes.
 
 //Directives
 #include <Windows.h>
-
+#include <thread>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -38,6 +39,7 @@ The process number ranges from 1 to the defined max number of processes.
 #include <boost/log/utility/setup/common_attributes.hpp>
 
 #include "Sorting.h"
+#include "ReduceProcess.h"
 
 //Name spaces
 using std::cout;
@@ -46,12 +48,10 @@ using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::runtime_error;
+using std::thread;
 
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
-
-// definition for reduce function in ReduceLibrary DLL.
-typedef void (*funcReduce)(string, string);
 
 void init_logging()
 {
@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
 
 	// convert the file path to a string
 	string intermediateFilePath = argv[0];
+
 	//convert file path back to normal
 	for (int i = 0; i < intermediateFilePath.size(); i++)
 	{
@@ -119,11 +120,15 @@ int main(int argc, char* argv[])
 		}
 
 	}
+	
 	// store the process number.
 	string processNumber = argv[2];
 
 	// convert the output file path to a string
 	string outputFilePath = argv[1];
+
+	// convert the number of threads to a string
+	string numberOfThreads = argv[3];
 
 	//convert filepath back to normal
 	for (int i = 0; i < outputFilePath.size(); i++)
@@ -136,129 +141,9 @@ int main(int argc, char* argv[])
 		{
 			outputFilePath[i] = outputFilePath[i];
 		}
-
 	}	
 
-	// retrieve the size of the output 
-	int outputFilePathSize = outputFilePath.size();
+	// create a ReduceProcess object and call its constructor.
+	ReduceProcess ReduceProcessObj(intermediateFilePath, outputFilePath, processNumber, numberOfThreads);
 
-	// alter the output file path.
-	string alteredOutputFilePath = outputFilePath.substr(0, outputFilePathSize - 4) + processNumber + outputFilePath.substr(outputFilePathSize - 4);
-
-	// assign pointers to the files.
-	string* intermediateFilePathPntr = &intermediateFilePath;
-	string* outputFilePathPntr = &alteredOutputFilePath;
-
-	// Load the Reduce constructor from the ReduceLibrary DLL
-	HINSTANCE reduceDllHandle;
-	funcReduce Reduce;
-	const wchar_t* reduceLibraryName = L"ReduceLibrary";
-
-	// Load the library (DLL).
-	reduceDllHandle = LoadLibraryEx(reduceLibraryName, NULL, NULL);   // Handle to DLL
-
-	// perform the following if the DLL was able to be loaded.
-	if (reduceDllHandle != NULL) {
-
-		// Load the Reduce constructor from the DLL.
-		Reduce = (funcReduce)GetProcAddress(reduceDllHandle, "Reduce");
-
-		// initialize local variables
-		ofstream outputFileStream;
-
-		//Open file and then close to clear the contents
-		outputFileStream.open(alteredOutputFilePath);
-		outputFileStream.close();
-
-		// create an instance of the Sorting class.
-		Sorting sortingObj(intermediateFilePathPntr);
-
-		// Create local variables. Input file stream object
-		ifstream inputFileStreamObj;
-		string line;
-		string entryString{ NULL };
-		string* entryStrPntr{ NULL };
-
-		// create a delimiter to find the following string: ")"
-		string closedParenthesis{ ")" };
-		string openParenthesis{ "(" };
-		size_t openPos{ NULL };
-		size_t closedPos{ NULL };
-
-		try {
-			// format the file.
-			sortingObj.format();
-
-			// inform the user.
-			cout << "\nWorkflow is now parsing the intermediate file and calling the Reduce class on each entry." << endl;
-
-			// open the intermediate file
-			try {
-				inputFileStreamObj.open(*intermediateFilePathPntr);
-			}
-
-			// catch exception handled in exception class here
-			catch (const runtime_error& exception) {
-				cout << "\nException occurred in \"ReduceProcess::Main\".\n";
-				cout << exception.what();
-				throw exception;
-			}
-
-			// catch any exception here
-			catch (...) {
-				cout << "\nException occurred in \"ReduceProcess::Main\".\n";
-				throw;
-			}
-
-			// assign the entry string pointer
-			entryStrPntr = &entryString;
-
-			// get the first line from the file.
-			while (getline(inputFileStreamObj, line)) {
-
-				// find the position of the first open parenthesis
-				openPos = line.find(openParenthesis);
-
-				// offset for the find method of the string class.
-				size_t offset{ 0 };
-
-				// while there are words in this line, keep extracting them.
-				while (openPos != string::npos) {
-
-					// find the position of the closed parenthesis
-					closedPos = line.find(closedParenthesis, offset);
-
-					// if the open and closed parentheses were found, pass the substring to the reduce class.
-					if ((openPos != string::npos) && (closedPos != string::npos)) {
-
-						// extract the entry. 
-						entryString = line.substr(openPos, (closedPos - openPos) + 1);
-
-						// pass the string to the reduce method from the Reduce class.
-						Reduce(alteredOutputFilePath, entryString);
-					}
-
-					// update the offset into the line for the next search.
-					offset = closedPos + 1;
-
-					// Find the position of the next open parenthesis. 
-					openPos = line.find(openParenthesis, offset);
-				}
-			}
-
-			// Free the handle to the ReduceLibrary DLL.
-			FreeLibrary(reduceDllHandle);
-		}
-
-		// catch any exception here
-		catch (...)
-		{
-			BOOST_LOG_TRIVIAL(fatal) << "Error in Workflow class inputIsFile function. Program will shutdown";
-			throw;
-		}
-	}
-	else {
-		BOOST_LOG_TRIVIAL(fatal) << "Error loading ReduceLibrary DLL in Workflow::startProgram method. Program will shutdown";
-		throw;
-	}
 }//End of Program
