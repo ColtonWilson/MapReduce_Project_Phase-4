@@ -39,6 +39,7 @@ The process number ranges from 1 to the defined max number of processes.
 #include <boost/log/utility/setup/common_attributes.hpp>
 
 #include "FileManagement.h"
+#include "MapProcess.h"
 
 
 //Name spaces
@@ -53,8 +54,7 @@ using std::runtime_error;
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
-// definition for reduce function in ReduceLibrary DLL.
-typedef void (*funcMap)(string, string);
+
 
 void init_logging()
 {
@@ -122,6 +122,9 @@ int main(int argc, char* argv[])
 	// convert the intermediate file path to a string
 	string intermediateFilePath = argv[1];
 
+	// convert the number of threads to a string
+	string numberOfThreads = argv[3];
+
 	//convert file path back to normal
 	for (int i = 0; i < intermediateFilePath.size(); i++)
 	{
@@ -136,54 +139,9 @@ int main(int argc, char* argv[])
 
 	}
 
-	// retrieve the size of the intermediate file path.
-	int intermediateFilePathSize = intermediateFilePath.size();
+	// create a ReduceProcess object and call its constructor.
+	MapProcess MapProcessObj(inputFile, intermediateFilePath, processNumber, numberOfThreads);
 
-	// alter the intermediate file path.
-	string alteredIntermediateFilePath = intermediateFilePath.substr(0, intermediateFilePathSize - 4) + processNumber + intermediateFilePath.substr(intermediateFilePathSize - 4);
-
-	// assign pointers to the files.
-	string* inputFilePntr = &inputFile;
-	string* intermediateFilePathPntr = &alteredIntermediateFilePath;
-
-	HINSTANCE mapLibraryHandle;
-	funcMap Map;
-	const wchar_t* libName = L"MapLibrary";
-
-	mapLibraryHandle = LoadLibraryEx(libName, NULL, NULL);   // Handle to DLL
-
-	// perform the following if the mapLibraryHandle is not NULL
-	if (mapLibraryHandle != NULL) {
-
-		Map = (funcMap)GetProcAddress(mapLibraryHandle, "Map");
-
-		//Create an input and output stream class
-		ifstream inputFileStream;
-		ofstream intermediateFileStream;
-
-		//Create an object of the FileManagement class
-		FileManagement FileStreamSystem;
-
-		//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-		FileStreamSystem.openFileInstream(inputFileStream, inputFile);
-		FileStreamSystem.fileCorrupt(inputFileStream);
-
-		//Initiate a variable to hold raw data given by the input file
-		string data{ "Unknown" };
-
-		//Keep collecting data until the end of file and get a return of "1"
-		while (data != "1")
-		{
-			//Get a line of data from the input file
-			FileStreamSystem.readFromFile(inputFileStream, data);
-
-			if (data != "1")
-			{
-				Map(alteredIntermediateFilePath, data);
-			}
-		}
-
-		// Free the handle to the MapLibrary DLL.
-		FreeLibrary(mapLibraryHandle);
-	}
 }//End of Program
+
+	
