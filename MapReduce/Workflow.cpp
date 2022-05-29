@@ -202,7 +202,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-main\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
@@ -497,6 +497,9 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 		// convert the process number to a string
 		string processNumber = std::to_string(i + 1);
 
+		// convert the thread number to a string
+		string threadNumber = std::to_string(TMAX);
+
 		// create an array to hold an integer in string form.
 		wchar_t wCharArray[750];
 
@@ -553,6 +556,16 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 			index = index + 1;
 		}
 
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+		// insert the thread number into the wCharArray
+		for (int i = 0; i < threadNumber.size(); i++) {
+			wCharArray[index] = threadNumber[i];
+			index = index + 1;
+		}
+
 		// end the string with the null character
 		wCharArray[index] = 0;
 
@@ -570,7 +583,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-main\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
