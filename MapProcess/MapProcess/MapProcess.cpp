@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-4/9/2022
+5/29/2022
 
 MapProcess.cpp
 
@@ -144,8 +144,32 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 		for (std::thread& th : threadVector)
 		{
 			// If thread Object is Joinable then Join that thread.
-			if (th.joinable())
+			if (th.joinable()) {
 				th.join();
+			}
+		}
+
+		// combine the files so that there is one for each process.
+		for (int i = 0; i < numberOfThreadsInt; i++) {
+
+			// get the size of the output file path
+			int intermedFilePathSize = alteredIntermediateFilePath.size();
+
+			// add the process number of the end of the output file path.
+			string newIntermedThreadFilePath = alteredIntermediateFilePath.substr(0, intermedFilePathSize - 4) + std::to_string(i + 1) + alteredIntermediateFilePath.substr(intermedFilePathSize - 4);
+
+			FileManagement fileManagementObjLocal;
+
+			// append all of the contents from this thread to the main process file.
+			fileManagementObjLocal.appendContents(newIntermedThreadFilePath, alteredIntermediateFilePath);
+
+			// erase the file contents and delete the file.
+			const char* interThreadFileChar = newIntermedThreadFilePath.c_str();
+
+			//Open file and then close to clear the contents
+			ofstream ofStreamObjNew;
+			fileManagementObjLocal.clearFile(ofStreamObjNew, newIntermedThreadFilePath);
+			remove(interThreadFileChar);
 		}
 	}
 
@@ -176,19 +200,17 @@ void MapProcess::mapThread(string intermediateFilePath, int threadNumber, vector
 
 			Map = (funcMap)GetProcAddress(mapLibraryHandle, "Map");
 
-			ofstream intermediateFileStream;
+			// get the size of the output file path
+			int intermediateFilePathSize = intermediateFilePath.size();
 
-			//Create an object of the FileManagement class
-			FileManagement FileStreamSystem;
+			// add the process number of the end of the output file path.
+			string newIntermediateFilePath = intermediateFilePath.substr(0, intermediateFilePathSize - 4) + std::to_string(threadNumber) + intermediateFilePath.substr(intermediateFilePathSize - 4);
 
 			// call reduce on each string in the vector
 			for (int i = 0; i < stringVector.size(); i++) 
 			{
-				Map(intermediateFilePath, stringVector[i]);
-
+				Map(newIntermediateFilePath, stringVector[i]);
 			}
-
-			
 
 			// Free the handle to the MapLibrary DLL.
 			FreeLibrary(mapLibraryHandle);
