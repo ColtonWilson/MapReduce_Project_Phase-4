@@ -148,6 +148,7 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 				th.join();
 			}
 		}
+		
 
 		// combine the files so that there is one for each process.
 		for (int i = 0; i < numberOfThreadsInt; i++) {
@@ -166,10 +167,7 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 			// erase the file contents and delete the file.
 			const char* interThreadFileChar = newIntermedThreadFilePath.c_str();
 
-			//Open file and then close to clear the contents
-			ofstream ofStreamObjNew;
-			fileManagementObjLocal.clearFile(ofStreamObjNew, newIntermedThreadFilePath);
-			remove(interThreadFileChar);
+		
 		}
 	}
 
