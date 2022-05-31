@@ -19,7 +19,7 @@ The public data member functions are setters and getters for each data member.
 
 //Constant R, how many buckets are being used
 const int RMAX{ 5 };
-const int TMAX{ 5 };
+const int TMAX{ 5};
 
 //Directives
 #include "Workflow.h"
@@ -93,6 +93,8 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 	// insert delay before part 2
 	std::this_thread::sleep_for(std::chrono::seconds(10));
+
+	
 
 	//<-----------------Part 2------------------------------------------>
 
@@ -238,6 +240,8 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	int intermediateFileNameSize = intermediateFile.size();
 	int outputFileSize = outputFile.size();
 	
+	
+
 	// delete the temporary files.
 	for (int i = 1; i <= RMAX; i++)
 	{
@@ -258,6 +262,27 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		remove(outputFileChar);
 	}
 
+	// delete the temporary files.
+	for (int i = 1; i <= RMAX; i++)
+	{
+		for (int j = 1; j <= TMAX; j++)
+		{
+			// add the correct extension to the files based on their process number.
+			string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + std::to_string(j) + intermediateFile.substr(intermediateFileNameSize - 4);
+
+			// convert strings to const char* for remove method.
+			const char* interFileChar = newIntermedFileName.c_str();
+
+			//Open file and then close to clear the contents
+			ofStreamObj.open(newIntermedFileName);
+			ofStreamObj.close();
+			remove(interFileChar);
+			
+
+		}
+		
+	}
+
 	//open stream for the output file
 	ofstream ofstreamObj;
 	//clear the file
@@ -274,6 +299,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 	string word;
 	string number;
+	
 	
 	//Combine output files
 	for (int i = 1; i <= RMAX; i++) {
@@ -348,6 +374,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	
 	cout << "word size: " << wordVec.size() << '\n';
 	cout << "count. size: " << countVec.size() << '\n';
+	
 
 	for (int i = 0; i < wordVec.size(); i++)
 	{
@@ -393,15 +420,15 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 	int inputFileNameSize = inputFile.size();
 
 	// clear all of the temporary input files.
-	for (int i = 1; i <= RMAX; i++)
-	{
-		// add the correct extension to the files based on their process number.
-		string newInputFileName = inputFile.substr(0, inputFileNameSize - 4) + std::to_string(i) + inputFile.substr(inputFileNameSize - 4);
+	//for (int i = 1; i <= rmax; i++)
+	//{
+	//	// add the correct extension to the files based on their process number.
+	//	string newinputfilename = inputfile.substr(0, inputfilenamesize - 4) + std::to_string(i) + inputfile.substr(inputfilenamesize - 4);
 
-		//Open file and then close to clear the contents
-		ofStreamObj.open(newInputFileName);
-		ofStreamObj.close();
-	}
+	//	//open file and then close to clear the contents
+	//	ofstreamobj.open(newinputfilename);
+	//	ofstreamobj.close();
+	//}
 
 	// container for strings 
 	vector<string> stringVector;
