@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-5/18/2022
+5/29/2022
 
 FileManagement.h
 
@@ -92,6 +92,10 @@ public:
 	//Post-Condition:File is update with string data
 	//Write into a temporary file
 	void writeToTempFile(ofstream& fileStream, const string& data);
+
+	//Pre-Condition: strings passed to the constructor are valid files.
+	//Post-Condition: the contents of file one will be copied (appended) to file two. 
+	void appendContents(const string fileOne, const string fileTwo);
 
 	//Pre-Condition:
 	//Post-Condition:
