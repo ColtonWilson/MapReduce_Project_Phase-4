@@ -85,6 +85,30 @@ vector<string> FileManagement::getAllFilesInDir(const string& dirPath, const vec
 	return listOfFiles;
 }
 
+// append the contents of file one to file two.
+void FileManagement::appendContents(const string fileOne, const string fileTwo) {
+	
+	ifstream inStreamObj;
+	ofstream outStreamObj;
+
+	// open file one.
+	openFileInstream(inStreamObj, fileOne);
+
+	// open file two.
+	openFileOutstream(outStreamObj, fileTwo);
+
+	string data{ NULL };
+
+	// get the contents of file one and append them to file two.
+	while (data != "1") {
+		readFromFile(inStreamObj, data);
+		outStreamObj << data << "\n";
+	}
+
+	// close both files.
+	closeInputFile(inStreamObj);
+	closeOutputFile(outStreamObj);
+}
 
 //Opens a file as an input stream, function parameters are a reference to input stream and string of file name to open
 void FileManagement::openFileInstream(ifstream& fileStream, const string userFile)
@@ -166,6 +190,7 @@ void FileManagement::writeToOutputFile(ofstream& fileStream, string key, size_t 
 	fileStream << "(\"" << key << "\"), " << std::to_string(sum) << "\n";
 
 }
+
 //To read a line of raw data from the input file
 void FileManagement::readFromFile(ifstream& fileStream, string& data)
 {
@@ -180,7 +205,6 @@ void FileManagement::readFromFile(ifstream& fileStream, string& data)
 	}
 }
 
-
 //Clear file of anything written.
 void FileManagement::clearFile(ofstream& fileStream, const string& userFile)
 {
@@ -191,5 +215,6 @@ void FileManagement::clearFile(ofstream& fileStream, const string& userFile)
 
 //close an input file
 void FileManagement::closeInputFile(ifstream& fileToClose) { fileToClose.close(); }
+
 //close an output file
 void FileManagement::closeOutputFile(ofstream& fileToClose) { fileToClose.close(); }
