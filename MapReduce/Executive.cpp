@@ -59,7 +59,7 @@ void init_logging()
 	logging::add_common_attributes();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	init_logging();
 
@@ -85,6 +85,15 @@ int main()
 	string intermediateFileName{ "Unknown" };
 	string outputFileName{ "Unknown" };
 
+	// convert the data to a string
+	string processNumber = argv[0];
+	
+
+	// store the process number.
+	string whatToDo = argv[1];
+	
+
+
 	//Banner Message
 	cout << "*************************************************************************************"
 		<< "\n*\t\t\tWelcome to the MapReduce!                                    *"
@@ -102,16 +111,17 @@ int main()
 	cout.flush();
 	//Standalone command-line to get user text file input and output directory location
 	cout << "\nInsert the input directory, intermediate directory, and output directory locations."
-		//<< "\n>>>";
-	//cin >> inputFileName >> intermediateFileName >> outputFileName;
 		<< "\nInput File Directory: ";
-	std::getline(cin, inputFileName);
-	cout << "Intermediate File Directory: ";
-	std::getline(cin, intermediateFileName);
-	cout << "Output File Directory: ";
-	std::getline(cin, outputFileName);
+	inputFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\i1.txt";
+	//std::getline(cin, inputFileName);
+	cout << "\nIntermediate File Directory: ";
+	intermediateFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\t1.txt";
+	//std::getline(cin, intermediateFileName);
+	cout << "\nOutput File Directory: ";
+	outputFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\o1.txt";
+	//std::getline(cin, outputFileName);
 
-	Workflow workFlow(inputFileName, intermediateFileName, outputFileName);
+	Workflow workFlow(inputFileName, intermediateFileName, outputFileName, stoi(whatToDo), stoi(processNumber));
 
 	//print to screen seconds to complete program
 	cout << "\nTime to complete program: ";

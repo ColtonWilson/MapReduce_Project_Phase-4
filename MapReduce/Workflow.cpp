@@ -18,7 +18,7 @@ The public data member functions are setters and getters for each data member.
 */
 
 //Constant R, how many buckets are being used
-const int RMAX{ 5 };
+int RMAX{ 0 };
 const int TMAX{ 5};
 
 //Directives
@@ -31,11 +31,11 @@ using std::to_string;
 //default constructor
 Workflow::Workflow() {}
 //WorkFlow constructor with three parameters
-Workflow::Workflow(string inputFile, string intermediateFile, string outputFile)
+Workflow::Workflow(string inputFile, string intermediateFile, string outputFile, int toDO, int processNumber)
 {
 	checkFilesValid(inputFile, intermediateFile, outputFile);
 
-	startProgram(getInputFileLocation(), getIntermediateFileLocation(), getOutputFileLocation());
+	startProgram(getInputFileLocation(), getIntermediateFileLocation(), getOutputFileLocation(), toDO, processNumber);
 }
 
 //**********Destructor*********
@@ -44,368 +44,387 @@ Workflow::~Workflow() {}
 //**********Member Function**********
 
 
-void Workflow::startProgram(string inputFile, string intermediateFile, string outputFile)
+void Workflow::startProgram(string inputFile, string intermediateFile, string outputFile, int toDo, int processNumber)
 {
+	RMAX = processNumber;
 
-	//<-----------------Part 1------------------------------------------>
-
-//Create an input and output stream class
-	ifstream inputFileStream;
-	ofstream ofStreamObj;
-
-	//Create an object of the FileManagement class
-	FileManagement FileStreamSystem;
-
-	if (boost::filesystem::is_directory(inputFile))
+	if (toDo == 0)
 	{
-		// insert all of the files in the directory inside a vector of strings.
-		vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
+		//<-----------------Part 1------------------------------------------>
 
-		for (auto str : listOfFiles)
+		//Create an input and output stream class
+		ifstream inputFileStream;
+		ofstream ofStreamObj;
+
+		//Create an object of the FileManagement class
+		FileManagement FileStreamSystem;
+
+		if (boost::filesystem::is_directory(inputFile))
 		{
-			cout << str << endl;
+			// insert all of the files in the directory inside a vector of strings.
+			vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
 
-		}
+			for (auto str : listOfFiles)
+			{
+				cout << str << endl;
 
-		cout << "*************************************************************************************" << endl;
-		//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
-		for (auto str : listOfFiles)
+			}
+
+			cout << "*************************************************************************************" << endl;
+			//Open the input file and connect to the in stream. Then double check to make sure file is not corrupt
+			for (auto str : listOfFiles)
+			{
+				//Banner Message
+				cout << "*************************************************************************************"
+					<< "\nMap process created for: " << str << "\n\n";
+				cout.flush();
+				partition(str, intermediateFile);
+			}
+
+
+		}// end if/else if input is directory
+		else
 		{
 			//Banner Message
 			cout << "*************************************************************************************"
-				<< "\nMap process created for: " << str << "\n\n";
+				<< "\nMap process created for: " << inputFile << "\n\n";
 			cout.flush();
-			partition(str, intermediateFile);
-		}
+			partition(inputFile, intermediateFile);
 
 
-	}// end if/else if input is directory
+		}//End of if/else if input is a file
+
+		// insert delay before part 2
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+
+	}
 	else
 	{
-		//Banner Message
-		cout << "*************************************************************************************"
-			<< "\nMap process created for: " << inputFile << "\n\n";
-		cout.flush();
-		partition(inputFile, intermediateFile);
-
-
-	}//End of if/else if input is a file
-
-	// insert delay before part 2
-	std::this_thread::sleep_for(std::chrono::seconds(10));
-
-	
-
-	//<-----------------Part 2------------------------------------------>
-
-	// a vector to store handles to the processes
-	vector<HANDLE> processHandleVector;
-	vector<HANDLE> processThreadVector;
-
-	// create the Reduce processes.
-	for (int i = 0; i < RMAX; i++) {
-
-		// create an array of process handlers.
-		HANDLE* processesHandle;
-
-		// allocate memory for the process handle array.
-		processesHandle = (HANDLE*)malloc(RMAX * sizeof(HANDLE));
-
-		// declare the startup info and process information objects.
-		STARTUPINFO si;
-		PROCESS_INFORMATION pi;
-
-		// convert the process number to a string
-		string processNumber = std::to_string(i + 1);
-
-		// convert the thread number to a string
-		string threadNumber = std::to_string(TMAX);
-
-		// create an array to hold an integer in string form.
-		wchar_t wCharArray[255];
-
-		// local variable for iterating through character array.
-		int index{ 0 };
-
-		int intermedFilePathSize = intermediateFile.size();
+		//<-----------------Part 2------------------------------------------>
 		
-		// add the process number of the end of the intermediate file path.
-		string newIntermediateFilePath = intermediateFile.substr(0, intermedFilePathSize - 4) + std::to_string(i + 1) + intermediateFile.substr(intermedFilePathSize - 4);
+		//Create an input and output stream class
+		ifstream inputFileStream;
+		ofstream ofStreamObj;
 
-		// populate the character array with the new intermediate file path
-		for (int i = 0; i < newIntermediateFilePath.size(); i++)
-		{
-			if (newIntermediateFilePath[i] == ' ')
+		//Create an object of the FileManagement class
+		FileManagement FileStreamSystem;
+
+		// a vector to store handles to the processes
+		vector<HANDLE> processHandleVector;
+		vector<HANDLE> processThreadVector;
+
+		// create the Reduce processes.
+		for (int i = 0; i < RMAX; i++) {
+
+			// create an array of process handlers.
+			HANDLE* processesHandle;
+
+			// allocate memory for the process handle array.
+			processesHandle = (HANDLE*)malloc(RMAX * sizeof(HANDLE));
+
+			// declare the startup info and process information objects.
+			STARTUPINFO si;
+			PROCESS_INFORMATION pi;
+
+			// convert the process number to a string
+			string processNumber = std::to_string(i + 1);
+
+			// convert the thread number to a string
+			string threadNumber = std::to_string(TMAX);
+
+			// create an array to hold an integer in string form.
+			wchar_t wCharArray[255];
+
+			// local variable for iterating through character array.
+			int index{ 0 };
+
+			int intermedFilePathSize = intermediateFile.size();
+
+			// add the process number of the end of the intermediate file path.
+			string newIntermediateFilePath = intermediateFile.substr(0, intermedFilePathSize - 4) + std::to_string(i + 1) + intermediateFile.substr(intermedFilePathSize - 4);
+
+			// populate the character array with the new intermediate file path
+			for (int i = 0; i < newIntermediateFilePath.size(); i++)
 			{
-				wCharArray[index] = '\n';
+				if (newIntermediateFilePath[i] == ' ')
+				{
+					wCharArray[index] = '\n';
+				}
+				else
+				{
+					wCharArray[index] = newIntermediateFilePath[i];
+				}
+				index = index + 1;
 			}
-			else
+
+			// insert a space
+			wCharArray[index] = ' ';
+			index = index + 1;
+
+			// populate the character array with the output file path
+			for (int i = 0; i < outputFile.size(); i++)
 			{
-				wCharArray[index] = newIntermediateFilePath[i];
+				if (outputFile[i] == ' ')
+				{
+					wCharArray[index] = '\n';
+				}
+				else
+				{
+					wCharArray[index] = outputFile[i];
+				}
+				index = index + 1;
 			}
+
+			// insert a space
+			wCharArray[index] = ' ';
 			index = index + 1;
-		}
 
-		// insert a space
-		wCharArray[index] = ' ';
-		index = index + 1;
+			// insert the process number into the wCharArray
+			for (int i = 0; i < processNumber.size(); i++) {
+				wCharArray[index] = processNumber[i];
+				index = index + 1;
+			}
 
-		// populate the character array with the output file path
-		for (int i = 0; i < outputFile.size(); i++)
-		{
-			if (outputFile[i] == ' ')
+			// insert a space
+			wCharArray[index] = ' ';
+			index = index + 1;
+
+			// insert the thread number into the wCharArray
+			for (int i = 0; i < threadNumber.size(); i++) {
+				wCharArray[index] = threadNumber[i];
+				index = index + 1;
+			}
+
+			// end the string with the null character
+			wCharArray[index] = 0;
+
+			// convert the process number in string form to LPWSTR
+			LPWSTR allArgsLpwstr = wCharArray;
+
+			// zero the memory of the startup info object.
+			ZeroMemory(&si, sizeof(si));
+
+			// assign the size of the structure (cb) to the size of the object.
+			si.cb = sizeof(si);
+
+			// zero the memory of the process information object.
+			ZeroMemory(&pi, sizeof(pi));
+
+			// assign the processes handle array with this handle
+			processesHandle[i] = pi.hProcess;
+
+			// Start the child process. 
+			if (!CreateProcess(
+				L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+				allArgsLpwstr,        // Command line
+				NULL,           // Process handle not inheritable
+				NULL,           // Thread handle not inheritable
+				FALSE,          // Set handle inheritance to FALSE
+				0,              // No creation flags
+				NULL,           // Use parent's environment block
+				NULL,           // Use parent's starting directory 
+				&si,            // Pointer to STARTUPINFO structure
+				&pi)           // Pointer to PROCESS_INFORMATION structure
+				)
 			{
-				wCharArray[index] = '\n';
+				printf("CreateProcess failed (%d).\n", GetLastError());
+				//return -1;
 			}
-			else
-			{
-				wCharArray[index] = outputFile[i];
-			}
-			index = index + 1;
+
+			// add the process to the process vectors
+			processHandleVector.push_back(pi.hProcess);
+			processThreadVector.push_back(pi.hThread);
 		}
 
-		// insert a space
-		wCharArray[index] = ' ';
-		index = index + 1;
+		// wait for all of the processes in the vector to finish
+		for (int i = 0; i < processHandleVector.size(); i++) {
 
-		// insert the process number into the wCharArray
-		for (int i = 0; i < processNumber.size(); i++) {
-			wCharArray[index] = processNumber[i];
-			index = index + 1;
+			// Wait until all child processes exit.
+			//WaitForMultipleObjects(RMAX, processesHandleMap, TRUE, INFINITE);
+			WaitForSingleObject(processHandleVector[i], INFINITE);
+
+			// Close process and thread handles. 
+			CloseHandle(processHandleVector[i]);
+			CloseHandle(processThreadVector[i]);
 		}
 
-		// insert a space
-		wCharArray[index] = ' ';
-		index = index + 1;
+		int intermediateFileNameSize = intermediateFile.size();
+		int outputFileSize = outputFile.size();
 
-		// insert the thread number into the wCharArray
-		for (int i = 0; i < threadNumber.size(); i++) {
-			wCharArray[index] = threadNumber[i];
-			index = index + 1;
-		}
 
-		// end the string with the null character
-		wCharArray[index] = 0;
 
-		// convert the process number in string form to LPWSTR
-		LPWSTR allArgsLpwstr = wCharArray;
-
-		// zero the memory of the startup info object.
-		ZeroMemory(&si, sizeof(si));
-
-		// assign the size of the structure (cb) to the size of the object.
-		si.cb = sizeof(si);
-
-		// zero the memory of the process information object.
-		ZeroMemory(&pi, sizeof(pi));
-
-		// assign the processes handle array with this handle
-		processesHandle[i] = pi.hProcess;
-
-		// Start the child process. 
-		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-main\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
-			allArgsLpwstr,        // Command line
-			NULL,           // Process handle not inheritable
-			NULL,           // Thread handle not inheritable
-			FALSE,          // Set handle inheritance to FALSE
-			0,              // No creation flags
-			NULL,           // Use parent's environment block
-			NULL,           // Use parent's starting directory 
-			&si,            // Pointer to STARTUPINFO structure
-			&pi)           // Pointer to PROCESS_INFORMATION structure
-			)
-		{
-			printf("CreateProcess failed (%d).\n", GetLastError());
-			//return -1;
-		}
-
-		// add the process to the process vectors
-		processHandleVector.push_back(pi.hProcess);
-		processThreadVector.push_back(pi.hThread);
-	}
-
-	// wait for all of the processes in the vector to finish
-	for (int i = 0; i < processHandleVector.size(); i++) {
-
-		// Wait until all child processes exit.
-		//WaitForMultipleObjects(RMAX, processesHandleMap, TRUE, INFINITE);
-		WaitForSingleObject(processHandleVector[i], INFINITE);
-
-		// Close process and thread handles. 
-		CloseHandle(processHandleVector[i]);
-		CloseHandle(processThreadVector[i]);
-	}
-
-	int intermediateFileNameSize = intermediateFile.size();
-	int outputFileSize = outputFile.size();
-	
-	
-
-	// delete the temporary files.
-	for (int i = 1; i <= RMAX; i++)
-	{
-		// add the correct extension to the files based on their process number.
-		string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + intermediateFile.substr(intermediateFileNameSize - 4);
-		string newOutputFileName = outputFile.substr(0, outputFileSize - 4) + std::to_string(i) + outputFile.substr(outputFileSize - 4);
-
-		// convert strings to const char* for remove method.
-		const char* interFileChar = newIntermedFileName.c_str();
-		const char* outputFileChar = newOutputFileName.c_str();
-
-		//Open file and then close to clear the contents
-		ofStreamObj.open(newIntermedFileName);
-		ofStreamObj.close();
-		remove(interFileChar);
-		ofStreamObj.open(newOutputFileName);
-		ofStreamObj.close();
-		remove(outputFileChar);
-	}
-
-	// delete the temporary files.
-	for (int i = 1; i <= RMAX; i++)
-	{
-		for (int j = 1; j <= TMAX; j++)
+		// delete the temporary files.
+		for (int i = 1; i <= RMAX; i++)
 		{
 			// add the correct extension to the files based on their process number.
-			string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + std::to_string(j) + intermediateFile.substr(intermediateFileNameSize - 4);
+			string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + intermediateFile.substr(intermediateFileNameSize - 4);
+			string newOutputFileName = outputFile.substr(0, outputFileSize - 4) + std::to_string(i) + outputFile.substr(outputFileSize - 4);
 
 			// convert strings to const char* for remove method.
 			const char* interFileChar = newIntermedFileName.c_str();
+			const char* outputFileChar = newOutputFileName.c_str();
 
 			//Open file and then close to clear the contents
 			ofStreamObj.open(newIntermedFileName);
 			ofStreamObj.close();
 			remove(interFileChar);
-			
-
-		}
-		
-	}
-
-	//open stream for the output file
-	ofstream ofstreamObj;
-	//clear the file
-	FileStreamSystem.clearFile(ofStreamObj, outputFile);
-	
-	//save the size of output file
-	int outputFileNameSize = outputFile.size();
-
-	//vectors to store word and count
-	vector<string>wordVec;
-	vector<int>countVec;
-	vector<string>wordCheckVec;
-	vector<int>countCheckVec;
-
-	string word;
-	string number;
-	
-	
-	//Combine output files
-	for (int i = 1; i <= RMAX; i++) {
-		for (int j = 1; j <= TMAX; j++) {
-			// add the correct extension to the files based on their process number.
-			string newOutputFileName = outputFile.substr(0, outputFileNameSize - 4) + std::to_string(i) + std::to_string(j) + outputFile.substr(outputFileNameSize - 4);
-
-			//open the stream and the file to read from
-			ifstream ifstreamObj;
-			FileStreamSystem.openFileInstream(ifstreamObj, newOutputFileName);
-
-			if (i == 1)
-			{
-				while (std::getline(ifstreamObj, word, ','))
-				{
-					wordVec.push_back(word);
-					std::getline(ifstreamObj, number);
-					countVec.push_back(stoi(number));
-				}
-			}
-			else
-			{
-			
-				while (std::getline(ifstreamObj, word, ','))
-				{
-					wordCheckVec.push_back(word);
-					std::getline(ifstreamObj, number);
-					countCheckVec.push_back(stoi(number));
-				}
-
-				for (int i = 0; i < wordVec.size(); i++)
-				{
-					for (int j = 0; j < wordCheckVec.size(); j++)
-					{
-						if (wordVec[i] == wordCheckVec[j])
-						{
-							countVec[i] = countVec[i] + countCheckVec[j];
-							wordCheckVec.erase(wordCheckVec.begin()+j);
-							countCheckVec.erase(countCheckVec.begin() + j);
-							j--;
-						}
-
-					}
-				
-				}
-				for (int k = 0; k < wordCheckVec.size(); k++)
-				{
-					wordVec.push_back(wordCheckVec[k]);
-					countVec.push_back(countCheckVec[k]);
-				}
-
-				wordCheckVec.clear();
-				countCheckVec.clear();
-
-			}
-		
-			// convert strings to const char* for remove method.
-			const char* outputFileChar = newOutputFileName.c_str();
-
-			//close the input file
-			FileStreamSystem.closeInputFile(ifstreamObj);
-		
-			//Open file and then close to clear the contents
 			ofStreamObj.open(newOutputFileName);
 			ofStreamObj.close();
 			remove(outputFileChar);
 		}
+
+		// delete the temporary files.
+		for (int i = 1; i <= RMAX; i++)
+		{
+			for (int j = 1; j <= TMAX; j++)
+			{
+				// add the correct extension to the files based on their process number.
+				string newIntermedFileName = intermediateFile.substr(0, intermediateFileNameSize - 4) + std::to_string(i) + std::to_string(j) + intermediateFile.substr(intermediateFileNameSize - 4);
+
+				// convert strings to const char* for remove method.
+				const char* interFileChar = newIntermedFileName.c_str();
+
+				//Open file and then close to clear the contents
+				ofStreamObj.open(newIntermedFileName);
+				ofStreamObj.close();
+				remove(interFileChar);
+
+
+			}
+
+		}
+
+		//open stream for the output file
+		ofstream ofstreamObj;
+		//clear the file
+		FileStreamSystem.clearFile(ofStreamObj, outputFile);
+
+		//save the size of output file
+		int outputFileNameSize = outputFile.size();
+
+		//vectors to store word and count
+		vector<string>wordVec;
+		vector<int>countVec;
+		vector<string>wordCheckVec;
+		vector<int>countCheckVec;
+
+		string word;
+		string number;
+
+
+		//Combine output files
+		for (int i = 1; i <= RMAX; i++) {
+			for (int j = 1; j <= TMAX; j++) {
+				// add the correct extension to the files based on their process number.
+				string newOutputFileName = outputFile.substr(0, outputFileNameSize - 4) + std::to_string(i) + std::to_string(j) + outputFile.substr(outputFileNameSize - 4);
+
+				//open the stream and the file to read from
+				ifstream ifstreamObj;
+				FileStreamSystem.openFileInstream(ifstreamObj, newOutputFileName);
+
+				if (i == 1)
+				{
+					while (std::getline(ifstreamObj, word, ','))
+					{
+						wordVec.push_back(word);
+						std::getline(ifstreamObj, number);
+						countVec.push_back(stoi(number));
+					}
+				}
+				else
+				{
+
+					while (std::getline(ifstreamObj, word, ','))
+					{
+						wordCheckVec.push_back(word);
+						std::getline(ifstreamObj, number);
+						countCheckVec.push_back(stoi(number));
+					}
+
+					for (int i = 0; i < wordVec.size(); i++)
+					{
+						for (int j = 0; j < wordCheckVec.size(); j++)
+						{
+							if (wordVec[i] == wordCheckVec[j])
+							{
+								countVec[i] = countVec[i] + countCheckVec[j];
+								wordCheckVec.erase(wordCheckVec.begin() + j);
+								countCheckVec.erase(countCheckVec.begin() + j);
+								j--;
+							}
+
+						}
+
+					}
+					for (int k = 0; k < wordCheckVec.size(); k++)
+					{
+						wordVec.push_back(wordCheckVec[k]);
+						countVec.push_back(countCheckVec[k]);
+					}
+
+					wordCheckVec.clear();
+					countCheckVec.clear();
+
+				}
+
+				// convert strings to const char* for remove method.
+				const char* outputFileChar = newOutputFileName.c_str();
+
+				//close the input file
+				FileStreamSystem.closeInputFile(ifstreamObj);
+
+				//Open file and then close to clear the contents
+				ofStreamObj.open(newOutputFileName);
+				ofStreamObj.close();
+				remove(outputFileChar);
+			}
+		}
+
+		// open output file to write to
+		FileStreamSystem.openFileOutstream(ofstreamObj, outputFile);
+
+		cout << "word size: " << wordVec.size() << '\n';
+		cout << "count. size: " << countVec.size() << '\n';
+
+
+		for (int i = 0; i < wordVec.size(); i++)
+		{
+			ofstreamObj << wordVec[i] << ", " << to_string(countVec[i]) << endl;
+		}
+
+		// Close the output.txt file.
+		FileStreamSystem.closeOutputFile(ofstreamObj);
+
+
+		//Check if there was a directory path
+		if (getOutputFileDirectoryLocation() == "")
+		{
+			// Print the SUCCESS.txt file to output directory.
+			FileStreamSystem.openFileOutstream(ofstreamObj, "SUCCESS.txt");
+
+		}
+		else
+		{
+			// Print the SUCCESS.txt file to output directory.
+			FileStreamSystem.openFileOutstream(ofstreamObj, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
+		}
+
+		// Close the SUCCESS.txt file.
+		FileStreamSystem.closeOutputFile(ofstreamObj);
+
+
+		// insert delay
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+
+		cout << "\nSuccess. Program will now terminate." << endl;
+
 	}
 
-	// open output file to write to
-	FileStreamSystem.openFileOutstream(ofstreamObj, outputFile);
 	
-	cout << "word size: " << wordVec.size() << '\n';
-	cout << "count. size: " << countVec.size() << '\n';
+
 	
 
-	for (int i = 0; i < wordVec.size(); i++)
-	{
-		ofstreamObj << wordVec[i] << ", " << to_string(countVec[i]) << endl;
-	}
-
-	// Close the output.txt file.
-	FileStreamSystem.closeOutputFile(ofstreamObj);
 	
-
-	//Check if there was a directory path
-	if (getOutputFileDirectoryLocation() == "")
-	{
-		// Print the SUCCESS.txt file to output directory.
-		FileStreamSystem.openFileOutstream(ofstreamObj, "SUCCESS.txt");
-
-	}
-	else
-	{
-		// Print the SUCCESS.txt file to output directory.
-		FileStreamSystem.openFileOutstream(ofstreamObj, getOutputFileDirectoryLocation() + "\\SUCCESS.txt");
-	}
-
-	// Close the SUCCESS.txt file.
-	FileStreamSystem.closeOutputFile(ofstreamObj);
-
-
-	// insert delay
-	std::this_thread::sleep_for(std::chrono::seconds(10));
-
-	cout << "\nSuccess. Program will now terminate." << endl;
 }
 
 // Workflow::partition method. 
@@ -419,16 +438,6 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 	//Clear all intermediate files
 	int inputFileNameSize = inputFile.size();
 
-	// clear all of the temporary input files.
-	//for (int i = 1; i <= rmax; i++)
-	//{
-	//	// add the correct extension to the files based on their process number.
-	//	string newinputfilename = inputfile.substr(0, inputfilenamesize - 4) + std::to_string(i) + inputfile.substr(inputfilenamesize - 4);
-
-	//	//open file and then close to clear the contents
-	//	ofstreamobj.open(newinputfilename);
-	//	ofstreamobj.close();
-	//}
 
 	// container for strings 
 	vector<string> stringVector;
@@ -610,7 +619,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project3\\Phase_3_update\\MapReduce_Project_Phase-3-main\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable

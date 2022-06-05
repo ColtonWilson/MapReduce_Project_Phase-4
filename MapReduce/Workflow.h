@@ -48,7 +48,7 @@ public:
 	//default constructor
 	Workflow();
 	//WorkFlow constructor with three parameters: string input file directory, string temporary directory to hold intermediate output files, and string output file
-	Workflow(string inputFile, string intermediateFile, string outputFile);
+	Workflow(string inputFile, string intermediateFile, string outputFile, int toDO, int processNumber);
 
 
 	//**********Member Function**********
@@ -56,7 +56,7 @@ public:
 	//Pre-condition: File is given in directory
 	//Post-condition: NA
 	//Will just read the contents of the one file
-	void startProgram(string inputFile, string intermediateFile, string outputFile);
+	void startProgram(string inputFile, string intermediateFile, string outputFile, int toDo, int processNumber);
 
 	//Pre-condition: outputFileLocation has been given
 	//Post-condition: outputFileDirectoryLocation data member will have a value
