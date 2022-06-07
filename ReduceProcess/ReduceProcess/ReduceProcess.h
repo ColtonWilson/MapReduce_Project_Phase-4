@@ -54,11 +54,18 @@ public:
 
 private:
 
+	// boolean variable indicating whether the process is complete.
+	bool done{ false };
+
 	//Pre-condition: Output file path, the thread number, and a vector to strings that have been 
 	// formatted by the sorting object.
 	//Post-condition: The reduce thread will call the reduce method in the Reduce Library (DLL).
 	void reduceThread(string outputFilePath, int threadNumber, vector<string> stringVector);
 
+	//Pre-condition: None.
+	//Post-condition: The heartbeat thread will send a heartbeat message every 5 secconds to the 
+	// controller process. When reducing is complete, it will send "Reducing complete".
+	void heartbeatThread(int processNumber);
 };
 
 #endif
