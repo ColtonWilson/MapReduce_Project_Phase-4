@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-4/9/2022
+6/7/2022
 
 Workflow.h
 
@@ -49,7 +49,6 @@ public:
 	Workflow();
 	//WorkFlow constructor with three parameters: string input file directory, string temporary directory to hold intermediate output files, and string output file
 	Workflow(string inputFile, string intermediateFile, string outputFile, int toDO, int processNumber);
-
 
 	//**********Member Function**********
 
@@ -169,6 +168,11 @@ public:
 
 private:
 
+	// get the number of files found in the input directory
+	void getNumberOfFilesFound(string inputFile);
+
+	// the number of input files found.
+	int numberOfFilesFound{ 0 };
 
 	//Data member to save location of input text file...just read from
 	string inputFileLocation{ "Unknown" };
