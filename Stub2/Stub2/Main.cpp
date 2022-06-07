@@ -1,3 +1,19 @@
+/*
+Anthony Redamonti & Colton Wilson
+Professor Scott Roueche
+CSE 687 Object Oriented Design
+Syracuse University
+Project 1
+6/7/2022
+
+Main.cpp
+
+The Stub 2 process will parse the command line arguments.
+It will create a MapReduce.exe process and pass the arguments
+to the process.
+
+*/
+
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
@@ -5,11 +21,16 @@
 #include <vector>
 
 #pragma comment (lib, "ws2_32.lib")
-using namespace std;
 
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::string;
+
+// function definition.
 void sendMessage(string message, SOCKET sock);
 
-void main()
+int main(int argc, char* argv[])
 {
 	//Initialize winsock
 	WSADATA wsData;
@@ -19,7 +40,7 @@ void main()
 	if (wsOk != 0)
 	{
 		cerr << "Can't Initialize winsock! Quitting" << endl;
-		return;
+		return -1;
 	}
 
 	//Create a socket
@@ -27,7 +48,7 @@ void main()
 	if (listening == INVALID_SOCKET)
 	{
 		cerr << "Can't create a socket! Quitting" << endl;
-		return;
+		return -2;
 	}
 
 	//Bind the ip address and port to a socket
@@ -49,7 +70,7 @@ void main()
 	if (clientSocket == INVALID_SOCKET)
 	{
 		cerr << "Can't create a client socket! Quitting" << endl;
-		return;
+		return -3;
 	}
 
 	char host[NI_MAXHOST];  //Client's remote name
@@ -142,7 +163,7 @@ void main()
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\x64\\Debug\\MapReduce.exe",
+			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapReduce\\x64\\Debug\\MapReduce.exe",
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
@@ -155,7 +176,7 @@ void main()
 			)
 		{
 			printf("CreateProcess failed (%d).\n", GetLastError());
-			return;
+			return -4;
 		}
 
 
@@ -177,8 +198,6 @@ void main()
 
 	//Echo message back to client
 	sendMessage("Reduce is Done", clientSocket);
-
-
 
 	//close the socket
 	closesocket(clientSocket);
