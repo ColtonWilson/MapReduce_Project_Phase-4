@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-4/9/2022
+6/7/2022
 
 ReduceProcess.cpp
 
@@ -37,6 +37,9 @@ namespace keywords = boost::log::keywords;
 // Reduce constructor
 ReduceProcess::ReduceProcess(string intermediateFilePath, string outputFilePath, string processNumber, string numberOfThreads)
 {
+	// convert the process number to an integer
+	int processNumberInt = std::stoi(processNumber);
+
 	// convert the string to an int
 	int numberOfThreadsInt = std::stoi(numberOfThreads);
 
@@ -178,8 +181,29 @@ ReduceProcess::ReduceProcess(string intermediateFilePath, string outputFilePath,
 			threadVector.push_back(std::move(threadObj));
 		}
 
+		// a vector for the heartbeat thread.
+		vector<thread> heartbeatThreadVec;
+
+		// begin heartbeat thread.
+		for (int i = 0; i < 1; i++) {
+			int procNum = processNumberInt;
+			thread heartbeatThread([this, procNum] {this->heartbeatThread(procNum); });
+			heartbeatThreadVec.push_back(std::move(heartbeatThread));
+		}
+
 		// Iterate over the thread vector
 		for (std::thread& th : threadVector)
+		{
+			// If thread Object is Joinable then Join that thread.
+			if (th.joinable())
+				th.join();
+		}
+
+		// after completion, update the boolean value
+		done = true;
+
+		// Iterate over the thread vector
+		for (std::thread& th : heartbeatThreadVec)
 		{
 			// If thread Object is Joinable then Join that thread.
 			if (th.joinable())
@@ -206,7 +230,7 @@ void ReduceProcess::reduceThread(string outputFilePath, int threadNumber, vector
 		// Load the Reduce constructor from the ReduceLibrary DLL
 		HINSTANCE reduceDllHandle;
 		funcReduce Reduce;
-		const wchar_t* reduceLibraryName = L"ReduceLibrary";
+		const wchar_t* reduceLibraryName = L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\ReduceLibrary.dll";
 
 		// Load the library (DLL).
 		reduceDllHandle = LoadLibraryEx(reduceLibraryName, NULL, NULL);   // Handle to DLL
@@ -246,3 +270,120 @@ void ReduceProcess::reduceThread(string outputFilePath, int threadNumber, vector
 	}
 }
 
+// Heartbeat thread that sends heartbeat message every 5 seconds.
+void ReduceProcess::heartbeatThread(int processNumber) {
+	try {
+
+		int portNumber{ 0 };
+		string ipAddress{ "NULL" };
+
+		cout << "Process Number: " << processNumber << endl;
+
+		// update the port number based on the process number.
+		portNumber = 8003 + processNumber;
+
+		// alter the ip address based on the process number.
+		if (processNumber == 1) { ipAddress = "127.0.0.5"; }
+		else if (processNumber == 2) { ipAddress = "127.0.0.6";	}
+		else { 
+			// nothing to do at this time. 
+		}
+
+		cout << "Port Number: " << portNumber << endl;
+		cout << "IP address: " << ipAddress;
+
+		// initialize local variables
+		WSADATA winSockData;
+		int errWsaStartUp;
+		int errWsaCleanUp;
+
+		SOCKET reduceProcSocket;
+		int errCloseSocket;
+
+		// address of the server 
+		struct sockaddr_in controllerAddress;
+		int errConnect;
+
+		int errSend;
+		char sendBuffer[512] = "Reducing in progress";
+		char finishedBuffer[40] = "Reducing complete";
+		int sizeOfSendBuffer = strlen(sendBuffer) + 1;
+		int sizeOfFinishedBuffer = strlen(finishedBuffer) + 1;
+
+		// call the startup function
+		errWsaStartUp = WSAStartup(MAKEWORD(2, 2), &winSockData);
+		if (errWsaStartUp != 0) {
+			cout << "WSAStartup failed." << endl;
+		}
+
+		// create the socket
+		reduceProcSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (reduceProcSocket == INVALID_SOCKET) {
+			cout << "TCP Client Socket Creation Failed." << endl;
+		}
+
+		// convert the ip address to a constant char *
+		const char* ipAddConst = ipAddress.c_str();
+
+		// populate the structure.
+		controllerAddress.sin_family = AF_INET; // TCP/IP
+		controllerAddress.sin_addr.s_addr = inet_addr(ipAddConst);
+		controllerAddress.sin_port = htons(portNumber);
+
+		// establish the connection to the specified socket.
+		while (connect(reduceProcSocket, (SOCKADDR*)&controllerAddress, sizeof(controllerAddress)) == SOCKET_ERROR) {
+
+			cout << "Reduce process thread (client) waiting to connect to controller process (server)." << endl;
+
+			// insert delay before part 2
+			std::this_thread::sleep_for(std::chrono::seconds(10));
+		}
+
+		// while loop: while we are not done, keep sending heartbeat message: "Reducing in progress."
+		while (!done) {
+			// wait for command from the controller process.
+			errSend = send(reduceProcSocket, sendBuffer, sizeOfSendBuffer, 0);
+			if (errSend == SOCKET_ERROR) {
+				cout << "Reduce process (heartbeat thread) failed to send data to the controller process." << endl;
+			}
+
+			// sleep for 5 seconds.
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+
+		// wait for command from the controller process.
+		errSend = send(reduceProcSocket, finishedBuffer, sizeOfFinishedBuffer, 0);
+		if (errSend == SOCKET_ERROR) {
+			cout << "Reduce process (heartbeat thread) failed to send data to the controller process." << endl;
+		}
+
+		// close the socket 
+		errCloseSocket = closesocket(reduceProcSocket);
+		if (errCloseSocket == SOCKET_ERROR) {
+			cout << "Client process failed to close the socket." << endl;
+		}
+
+		// call the clean up method from the Windows Socket API
+		errWsaCleanUp = WSACleanup();
+		if (errWsaCleanUp == SOCKET_ERROR) {
+			cout << "WSACleanup method failed in client process." << endl;
+		}
+
+		// print message that the stub process is exiting.
+		cout << "Reduce process (heartbeat thread) is done" << endl;
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "Exception occurred in \"ReduceProcess::heartbeatThread\"." << endl;
+		cout << exception.what();
+		throw exception;
+	}
+
+	// catch any exception here
+	catch (...)
+	{
+		BOOST_LOG_TRIVIAL(fatal) << "Error in Reduce Process Heartbeat Thread. Program will shutdown";
+		throw;
+	}
+}
