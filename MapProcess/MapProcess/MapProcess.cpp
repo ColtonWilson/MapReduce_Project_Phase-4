@@ -4,13 +4,13 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-5/29/2022
+6/7/2022
 
 MapProcess.cpp
 
 Below is MapProcess.cpp, which is called by the MapProcess Main function.
 The constructor takes the input file path, intermediate file path, process number,
-and thread number as arguments.
+max thread number, and total number of input files in directory as arguments.
 The private data member function "mapThread" call the map method in the
 MapLibrary DLL.
 
@@ -34,9 +34,12 @@ using std::thread;
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
-// Reduce constructor
-MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string processNumber, string numberOfThreads)
+// Mapping constructor
+MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string processNumber, string numberOfThreads, string numberOfFilesFound)
 {
+	// convert the process number to an integer
+	int processNumberInt = std::stoi(processNumber);
+
 	// convert the string to an int
 	int numberOfThreadsInt = std::stoi(numberOfThreads);
 
@@ -79,7 +82,6 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 
 		// open the intermediate file
 		try {
-
 			inputFileStreamObj.open(*inputFilePntr);
 		}
 
@@ -130,25 +132,46 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 		}
 
 		// a vector of threads
-		vector<thread> threadVector;
+		vector<thread> mappingThreadsVector;
 
 		// create the threads and push them into the vector
 		for (int i = 0; i < numberOfThreadsInt; i++) {
 			string tempOutPath = alteredIntermediateFilePath;
 			vector<string> tempVec = multiDimensionalStringVector[i];
 			thread threadObj([this, tempOutPath, i, tempVec] {this->mapThread(tempOutPath, i + 1, tempVec); });
-			threadVector.push_back(std::move(threadObj));
+			mappingThreadsVector.push_back(std::move(threadObj));
+		}
+
+		// a vector for the heartbeat thread.
+		vector<thread> heartbeatThreadVec;
+
+		// begin heartbeat thread.
+		for (int i = 0; i < 1; i++) {
+			string numFiles = numberOfFilesFound;
+			int procNum = processNumberInt;
+			thread heartbeatThread([this, procNum, numFiles] {this->heartbeatThread(procNum, numFiles); });
+			heartbeatThreadVec.push_back(std::move(heartbeatThread));
 		}
 
 		// Iterate over the thread vector
-		for (std::thread& th : threadVector)
+		for (std::thread& th : mappingThreadsVector)
 		{
 			// If thread Object is Joinable then Join that thread.
 			if (th.joinable()) {
 				th.join();
 			}
 		}
-		
+
+		// after completion, update the boolean value
+		done = true;
+
+		// Iterate over the thread vector
+		for (std::thread& th : heartbeatThreadVec)
+		{
+			// If thread Object is Joinable then Join that thread.
+			if (th.joinable())
+				th.join();
+		}
 
 		// combine the files so that there is one for each process.
 		for (int i = 0; i < numberOfThreadsInt; i++) {
@@ -166,8 +189,6 @@ MapProcess::MapProcess(string inputFilePath, string intermediateFilePath, string
 
 			// erase the file contents and delete the file.
 			const char* interThreadFileChar = newIntermedThreadFilePath.c_str();
-
-		
 		}
 	}
 
@@ -184,12 +205,12 @@ MapProcess::~MapProcess() {
 	// nothing to do at this time.
 }
 
-// creates a new thread to call the Reduce method in the ReduceLibrary DLL.
+// creates a new thread to call the Mapping method in the MapLibrary DLL.
 void MapProcess::mapThread(string intermediateFilePath, int threadNumber, vector<string> stringVector) {
 	try {
 		HINSTANCE mapLibraryHandle;
 		funcMap Map;
-		const wchar_t* libName = L"MapLibrary";
+		const wchar_t* libName = L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapProcess\\MapLibrary.dll"; //L"MapLibrary";
 
 		mapLibraryHandle = LoadLibraryEx(libName, NULL, NULL);   // Handle to DLL
 
@@ -204,7 +225,7 @@ void MapProcess::mapThread(string intermediateFilePath, int threadNumber, vector
 			// add the process number of the end of the output file path.
 			string newIntermediateFilePath = intermediateFilePath.substr(0, intermediateFilePathSize - 4) + std::to_string(threadNumber) + intermediateFilePath.substr(intermediateFilePathSize - 4);
 
-			// call reduce on each string in the vector
+			// call Map on each string in the vector
 			for (int i = 0; i < stringVector.size(); i++) 
 			{
 				Map(newIntermediateFilePath, stringVector[i]);
@@ -214,6 +235,7 @@ void MapProcess::mapThread(string intermediateFilePath, int threadNumber, vector
 			FreeLibrary(mapLibraryHandle);
 		}
 		else {
+			cout << "unable to load map library" << endl;
 			BOOST_LOG_TRIVIAL(fatal) << "Error loading MapLibrary DLL in mapThread. Program will shutdown.";
 			throw;
 		}
@@ -222,6 +244,136 @@ void MapProcess::mapThread(string intermediateFilePath, int threadNumber, vector
 	catch (...)
 	{
 		BOOST_LOG_TRIVIAL(fatal) << "Error in MapProcess::mapThread method. Program will shutdown";
+		throw;
+	}
+}
+
+// Heartbeat thread that sends heartbeat message every 5 seconds.
+void MapProcess::heartbeatThread(int processNumber, string numberOfFilesFound) {
+	try {
+
+		int portNumber{ 0 };
+		string ipAddress{ "NULL" };
+
+		cout << "Process Number: " << processNumber << endl;
+
+		// update the port number based on the process number.
+		portNumber = 8001 + processNumber;
+
+		// alter the ip address based on the process number.
+		if (processNumber == 1) { ipAddress = "127.0.0.3"; }
+		else if (processNumber == 2) { ipAddress = "127.0.0.4";	}
+		else { 
+			// nothing to do at this time. 
+		}
+
+		// initialize local variables
+		WSADATA winSockData;
+		int errWsaStartUp;
+		int errWsaCleanUp;
+
+		SOCKET mappingProcSocket;
+		int errCloseSocket;
+
+		// address of the server 
+		struct sockaddr_in controllerAddress;
+		int errConnect;
+
+		int errSend;
+
+		string sendMessage = "Mapping in progress. Files Found: " + numberOfFilesFound;
+		char sendBuffer[512];
+		int sendIndex{ 0 };
+
+		// copy the send message into the send buffer.
+		for (int i = 0; i < sendMessage.size(); i++) {
+			sendBuffer[sendIndex] = sendMessage[i];
+			sendIndex = sendIndex + 1;
+		}
+
+		// end the buffer with the null character
+		sendBuffer[sendIndex] = '\0';
+
+		char finishedBuffer[40] = "Mapping complete";
+		int sizeOfSendBuffer = strlen(sendBuffer) + 1;
+		int sizeOfFinishedBuffer = strlen(finishedBuffer) + 1;
+
+		// call the startup function
+		errWsaStartUp = WSAStartup(MAKEWORD(2, 2), &winSockData);
+		if (errWsaStartUp != 0) {
+			cout << "WSAStartup failed." << endl;
+		}
+
+		// create the socket
+		mappingProcSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (mappingProcSocket == INVALID_SOCKET) {
+			cout << "TCP Client Socket Creation Failed." << endl;
+		}
+
+		// convert the ip address to a constant char *
+		const char* ipAddConst = ipAddress.c_str();
+
+		// populate the structure.
+		controllerAddress.sin_family = AF_INET; // TCP/IP
+		controllerAddress.sin_addr.s_addr = inet_addr(ipAddConst);
+		controllerAddress.sin_port = htons(portNumber);
+
+		cout << portNumber << " " << ipAddress << endl;
+
+		// establish the connection to the specified socket.
+		while (connect(mappingProcSocket, (SOCKADDR*)&controllerAddress, sizeof(controllerAddress)) == SOCKET_ERROR) {
+
+			cout << "Mapping process thread (client) waiting to connect to controller process (server)." << endl;
+
+			// insert delay before part 2
+			std::this_thread::sleep_for(std::chrono::seconds(10));
+		}
+
+		// while loop: while we are not done, keep sending heartbeat message: "Reducing in progress."
+		while (!done) {
+			// wait for command from the controller process.
+			errSend = send(mappingProcSocket, sendBuffer, sizeOfSendBuffer, 0);
+			if (errSend == SOCKET_ERROR) {
+				cout << "Mapping process (heartbeat thread) failed to send data to the controller process." << endl;
+			}
+
+			// sleep for 1 second.
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+
+		// wait for command from the controller process.
+		errSend = send(mappingProcSocket, finishedBuffer, sizeOfFinishedBuffer, 0);
+		if (errSend == SOCKET_ERROR) {
+			cout << "Mapping process (heartbeat thread) failed to send data to the controller process." << endl;
+		}
+
+		// close the socket 
+		errCloseSocket = closesocket(mappingProcSocket);
+		if (errCloseSocket == SOCKET_ERROR) {
+			cout << "Client process failed to close the socket." << endl;
+		}
+
+		// call the clean up method from the Windows Socket API
+		errWsaCleanUp = WSACleanup();
+		if (errWsaCleanUp == SOCKET_ERROR) {
+			cout << "WSACleanup method failed in client process." << endl;
+		}
+
+		// print message that the stub process is exiting.
+		cout << "Mapping process (heartbeat thread) is done" << endl;
+	}
+
+	// catch exception handled in exception class here
+	catch (const runtime_error& exception) {
+		cout << "Exception occurred in \"MapProcess::heartbeatThread\"." << endl;
+		cout << exception.what();
+		throw exception;
+	}
+
+	// catch any exception here
+	catch (...)
+	{
+		BOOST_LOG_TRIVIAL(fatal) << "Error in Mapping Process Heartbeat Thread. Program will shutdown";
 		throw;
 	}
 }
