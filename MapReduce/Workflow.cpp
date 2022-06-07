@@ -4,7 +4,7 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 1
-5/15/2022
+6/7/2022
 
 Workflow.cpp
 
@@ -19,7 +19,7 @@ The public data member functions are setters and getters for each data member.
 
 //Constant R, how many buckets are being used
 int RMAX{ 0 };
-const int TMAX{ 5};
+const int TMAX{ 5 };
 
 //Directives
 #include "Workflow.h"
@@ -48,6 +48,9 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 {
 	RMAX = processNumber;
 
+	// update the number of files found in the input directory.
+	getNumberOfFilesFound(inputFile);
+
 	if (toDo == 0)
 	{
 		//<-----------------Part 1------------------------------------------>
@@ -67,7 +70,6 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 			for (auto str : listOfFiles)
 			{
 				cout << str << endl;
-
 			}
 
 			cout << "*************************************************************************************" << endl;
@@ -101,7 +103,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 	else
 	{
 		//<-----------------Part 2------------------------------------------>
-		
+
 		//Create an input and output stream class
 		ifstream inputFileStream;
 		ofstream ofStreamObj;
@@ -195,6 +197,18 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 				index = index + 1;
 			}
 
+			// insert a space
+			wCharArray[index] = ' ';
+			index = index + 1;
+
+			string numberOfFilesFoundStr = std::to_string(numberOfFilesFound);
+
+			// insert the thread number into the wCharArray
+			for (int i = 0; i < numberOfFilesFoundStr.size(); i++) {
+				wCharArray[index] = numberOfFilesFoundStr[i];
+				index = index + 1;
+			}
+
 			// end the string with the null character
 			wCharArray[index] = 0;
 
@@ -215,7 +229,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 
 			// Start the child process. 
 			if (!CreateProcess(
-				L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
+				L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\ReduceProcess\\x64\\Debug\\ReduceProcess.exe",   // No module name (use command line)
 				allArgsLpwstr,        // Command line
 				NULL,           // Process handle not inheritable
 				NULL,           // Thread handle not inheritable
@@ -417,14 +431,7 @@ void Workflow::startProgram(string inputFile, string intermediateFile, string ou
 		std::this_thread::sleep_for(std::chrono::seconds(10));
 
 		cout << "\nSuccess. Program will now terminate." << endl;
-
 	}
-
-	
-
-	
-
-	
 }
 
 // Workflow::partition method. 
@@ -438,7 +445,6 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 	//Clear all intermediate files
 	int inputFileNameSize = inputFile.size();
 
-
 	// container for strings 
 	vector<string> stringVector;
 	vector<string> alteredInputFileNamesVector;
@@ -448,7 +454,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 	// open the ifsteam object on the input file.
 	fileManagementObj.openFileInstream(ifStreamObj, inputFile);
-	
+
 	// divide the file into smaller files of equal size.
 
 	//Keep collecting data until the end of file and get a return of "1"
@@ -486,7 +492,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// insert the correct number of strings into the file.
 		for (int j = 0; j < stringVector.size() / RMAX; j++) {
-			
+
 			// insert a line of data into the file
 			fileManagementObj.writeToOutputFile(ofStreamObj, stringVector[vectorIndex]);
 			vectorIndex = vectorIndex + 1;
@@ -501,7 +507,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 	// open a file output stream on the new input file
 	fileManagementObj.openFileOutstream(ofStreamObj, alteredInputFileNamesVector[0]);
-	
+
 	// write the remaining strings to the first file.
 	for (int i = 0; i < remainingStrings; i++) {
 
@@ -602,6 +608,18 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 			index = index + 1;
 		}
 
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
+
+		string numberOfFilesFoundStr = std::to_string(numberOfFilesFound);
+
+		// insert the thread number into the wCharArray
+		for (int i = 0; i < numberOfFilesFoundStr.size(); i++) {
+			wCharArray[index] = numberOfFilesFoundStr[i];
+			index = index + 1;
+		}
+
 		// end the string with the null character
 		wCharArray[index] = 0;
 
@@ -619,7 +637,7 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 
 		// Start the child process. 
 		if (!CreateProcess(
-			L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
+			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapProcess\\x64\\Debug\\MapProcess.exe",   // No module name (use command line)
 			allArgsLpwstr,        // Command line
 			NULL,           // Process handle not inheritable
 			NULL,           // Thread handle not inheritable
@@ -672,7 +690,6 @@ void Workflow::partition(const string& inputFile, const string& intermediateFile
 void Workflow::separateOutputPath(const string userInputFile, const string& fileType)
 {
 	try {
-
 		// Create a Path object from File Path
 		boost::filesystem::path pathObj(userInputFile);
 
@@ -686,34 +703,26 @@ void Workflow::separateOutputPath(const string userInputFile, const string& file
 		{
 			//set data member as a string to remember the path
 			setOutputFileDirectoryLocation(dir.string());
-
 		}
 		else
 		{
 			//set data member as a string to remember the path
 			setIntermediateFileDirectoryLocation(dir.string());
 		}
-
-
-
 	}
 	// catch any exception here
 	catch (...)
 	{
 		BOOST_LOG_TRIVIAL(fatal) << "Error in Workflow class separateOutputPath function. Program will shutdown";
 		throw;
-
 	}
-
-
 }
-
-void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, string& outputFile)
-{
-	//----------------Verify if file directories are valid--------------
 
 //Verify if the input directory given is valid
 //Keep asking until valid file is given
+void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, string& outputFile)
+{
+	//----------------Verify if file directories are valid--------------
 	while (validInputFile == false)
 	{
 		//try block to attempt to the input file directory
@@ -732,7 +741,6 @@ void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, stri
 				<< "Input File Directory: ";
 			std::getline(cin, inputFile);
 		}
-
 	}
 
 	//Get path to intermediate output directory
@@ -756,7 +764,6 @@ void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, stri
 				<< "Intermediate File Directory: ";
 			std::getline(cin, intermediateFile);
 		}
-
 	}
 
 	//Get path to final output directory
@@ -778,11 +785,8 @@ void Workflow::checkFilesValid(string& inputFile, string& intermediateFile, stri
 			cout << "\nPlease enter a valid final output file directory.\n"
 				<< "Output File Directory: ";
 			std::getline(cin, outputFile);
-
 		}
-
 	}
-
 }
 
 //Check if the input file is valid
@@ -796,8 +800,6 @@ bool Workflow::checkIfFIle(const string& userInputFile)
 		BOOST_LOG_TRIVIAL(warning) << "Input Directory does not exist.";
 		return true;
 	}
-
-
 	return false;
 }
 
@@ -834,11 +836,7 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 					cout << getIntermediateFileDirectoryLocation();
 					boost::filesystem::create_directories(getIntermediateFileDirectoryLocation());
 				}
-
 			}
-
-
-
 			return false;
 		}
 		else
@@ -851,16 +849,14 @@ bool Workflow::checkOfFIle(const string& userInputFile, const string& fileType)
 
 string Workflow::updateString(string origional, string toAdd)
 {
-
 	int strLength = origional.size();
 	return origional.substr(0, strLength - 4) + toAdd + origional.substr(strLength - 4);
-
 }
+
 //**********Setters**********
 // Set the input file location.
 void Workflow::setInputFileLocation(const string& userInputFile)
 {
-
 	//Verify input call to checkIfFile()
 	if (checkIfFIle(userInputFile))
 	{
@@ -874,16 +870,13 @@ void Workflow::setInputFileLocation(const string& userInputFile)
 		inputFileLocation = userInputFile;
 		//update validInputFile
 		validInputFile = true;
-
 	}
-
 }
 
 // Set the intermediate file location.
 void Workflow::setIntermediateFileLocation(const string& userIntermediateFile)
 {
 	string intermediateFileToCheck = userIntermediateFile;
-
 
 	//Verify input call to checkIfFile()
 	if (checkOfFIle(intermediateFileToCheck, "intermediate"))
@@ -913,16 +906,13 @@ void Workflow::setIntermediateFileLocation(const string& userIntermediateFile)
 		intermediateFileLocation = intermediateFileToCheck;
 		//update validInputFile
 		validIntermediateFile = true;
-
 	}
-
 }
 
 // Set the output file location.
 void Workflow::setOutputFileLocation(const string& userOutputFile)
 {
 	string outputFileToCheck = userOutputFile;
-
 
 	//Verify input call to checkIfFile()
 	if (checkOfFIle(outputFileToCheck, "output"))
@@ -953,8 +943,6 @@ void Workflow::setOutputFileLocation(const string& userOutputFile)
 		validOutputFile = true;
 
 	}
-
-
 }
 
 void Workflow::setIntermediateFileDirectoryLocation(const string& userOutputFile) { intermediateFileDirectoryLocation = userOutputFile; }
@@ -987,3 +975,25 @@ const bool  Workflow::getValidIntermediateFile(void) { return validIntermediateF
 
 // Get the bool if output file is valid. 
 const bool  Workflow::getValidOutputFile(void) { return validOutputFile; }
+
+// Get the number of files found in the input directory.
+void Workflow::getNumberOfFilesFound(string inputFile) {
+	
+	//Create an object of the FileManagement class
+	FileManagement FileStreamSystem;
+
+	if (boost::filesystem::is_directory(inputFile))
+	{
+		// insert all of the files in the directory inside a vector of strings.
+		vector<string> listOfFiles = FileStreamSystem.getAllFilesInDir(inputFile);
+
+		for (auto str : listOfFiles)
+		{
+			numberOfFilesFound = numberOfFilesFound + 1;
+		}
+	}
+
+	else {
+		numberOfFilesFound = 1;
+	}
+}
