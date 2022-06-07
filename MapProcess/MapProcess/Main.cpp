@@ -4,16 +4,19 @@ Professor Scott Roueche
 CSE 687 Object Oriented Design
 Syracuse University
 Project 3
-5/15/2022
+6/7/2022
 
 Main.cpp
 
 Below is Main.cpp file.
 This file has the main() function for the MapProcess.exe file.
 
-It takes 3 command line arguments.
+It takes 5 command line arguments.
 - InputFilePath
+- Intermediate File Path
 - Process Number
+- Max Thread Count
+- Total number of files in directory
 
 The process number ranges from 1 to the defined max number of processes.
 
@@ -41,7 +44,6 @@ The process number ranges from 1 to the defined max number of processes.
 #include "FileManagement.h"
 #include "MapProcess.h"
 
-
 //Name spaces
 using std::cout;
 using std::cin;
@@ -50,11 +52,8 @@ using std::ofstream;
 using std::ifstream;
 using std::runtime_error;
 
-
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
-
-
 
 void init_logging()
 {
@@ -125,6 +124,9 @@ int main(int argc, char* argv[])
 	// convert the number of threads to a string
 	string numberOfThreads = argv[3];
 
+	// convert the number of files found to a string
+	string numberOfFilesFound = argv[4];
+
 	//convert file path back to normal
 	for (int i = 0; i < intermediateFilePath.size(); i++)
 	{
@@ -139,9 +141,8 @@ int main(int argc, char* argv[])
 
 	}
 
-	// create a ReduceProcess object and call its constructor.
-	MapProcess MapProcessObj(inputFile, intermediateFilePath, processNumber, numberOfThreads);
+	// create a MapProcess object and call its constructor.
+	MapProcess MapProcessObj(inputFile, intermediateFilePath, processNumber, numberOfThreads, numberOfFilesFound);
 
 }//End of Program
 
-	
