@@ -1,3 +1,19 @@
+/*
+Anthony Redamonti & Colton Wilson
+Professor Scott Roueche
+CSE 687 Object Oriented Design
+Syracuse University
+Project 1
+6/7/2022
+
+Main.cpp
+
+The Stub 1 process will parse the command line arguments.
+It will pass the arguments to MapReduce.exe and create a
+new MapReduce.exe process.
+
+*/
+
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
@@ -5,11 +21,16 @@
 #include <vector>
 
 #pragma comment (lib, "ws2_32.lib")
-using namespace std;
 
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::string;
+
+// function definition.
 void sendMessage(string message, SOCKET sock);
 
-void main()
+int main(int argc, char* argv[])
 {
 	//Initialize winsock
 	WSADATA wsData;
@@ -19,7 +40,7 @@ void main()
 	if (wsOk != 0)
 	{
 		cerr << "Can't Initialize winsock! Quitting" << endl;
-		return;
+		return -3;
 	}
 
 	//Create a socket
@@ -27,7 +48,7 @@ void main()
 	if (listening == INVALID_SOCKET)
 	{
 		cerr << "Can't create a socket! Quitting" << endl;
-		return;
+		return -4;
 	}
 
 	//Bind the ip address and port to a socket
@@ -49,7 +70,7 @@ void main()
 	if (clientSocket == INVALID_SOCKET)
 	{
 		cerr << "Can't create a client socket! Quitting" << endl;
-		return;
+		return -5;
 	}
 
 	char host[NI_MAXHOST];  //Client's remote name
@@ -92,7 +113,6 @@ void main()
 			cout << "Client disconnected " << endl;
 			break;
 		}
-		
 
 		recievedString = string(buf, 0, bytesReceived);
 		int n = recievedString.length();
@@ -108,88 +128,84 @@ void main()
 
 		//************Start the processes**************
 		// 
-			STARTUPINFO si;
-			PROCESS_INFORMATION pi;
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
 
-			// create an array to hold an integer in string form.
-			wchar_t wCharArray[10];
+		// create an array to hold an integer in string form.
+		wchar_t wCharArray[10];
 
-			// local variable for iterating through character array.
-			int index{ 0 };
+		// local variable for iterating through character array.
+		int index{ 0 };
 
-			cout << "\n" << char_array[0] << "\n";
-			wCharArray[index] = char_array[0];
-			index = index + 1;
+		cout << "\n" << char_array[0] << "\n";
+		wCharArray[index] = char_array[0];
+		index = index + 1;
 
-			// insert a space
-			wCharArray[index] = ' ';
-			index = index + 1;
+		// insert a space
+		wCharArray[index] = ' ';
+		index = index + 1;
 
-			cout << "\n" << char_array[2] << "\n";
-			wCharArray[index] = char_array[2];
-			index = index + 1;
+		cout << "\n" << char_array[2] << "\n";
+		wCharArray[index] = char_array[2];
+		index = index + 1;
 
-			// end the string with the null character
-			wCharArray[index] = 0;
+		// end the string with the null character
+		wCharArray[index] = 0;
 
-			// convert the process number in string form to LPWSTR
-			LPWSTR allArgsLpwstr = wCharArray;
+		// convert the process number in string form to LPWSTR
+		LPWSTR allArgsLpwstr = wCharArray;
 
-			ZeroMemory(&si, sizeof(si));
-			si.cb = sizeof(si);
-			ZeroMemory(&pi, sizeof(pi));
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
 
-			// Start the child process. 
-			if (!CreateProcess(
-				L"C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\x64\\Debug\\MapReduce.exe",
-				allArgsLpwstr,        // Command line
-				NULL,           // Process handle not inheritable
-				NULL,           // Thread handle not inheritable
-				FALSE,          // Set handle inheritance to FALSE
-				0,              // No creation flags
-				NULL,           // Use parent's environment block
-				NULL,           // Use parent's starting directory 
-				&si,            // Pointer to STARTUPINFO structure
-				&pi)           // Pointer to PROCESS_INFORMATION structure
-				)
-			{
-				printf("CreateProcess failed (%d).\n", GetLastError());
-				return;
-			}
+		// Start the child process. 
+		if (!CreateProcess(
+			L"C:\\Users\\antho\\OneDrive\\Documents\\Projects\\MapReduce\\x64\\Debug\\MapReduce.exe",
+			allArgsLpwstr,  // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)            // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			return -6;
+		}
 
-		
-			// Wait until child process exits.
-			WaitForSingleObject(pi.hProcess, INFINITE);
 
-			DWORD exit_code;
-			GetExitCodeProcess(pi.hProcess, &exit_code);
-			if (exit_code == STILL_ACTIVE) {
-				cout << " Process is still active";
-			}
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
 
-			// Close process and thread handles. 
-			CloseHandle(pi.hProcess);
-			CloseHandle(pi.hThread);
+		DWORD exit_code;
+		GetExitCodeProcess(pi.hProcess, &exit_code);
+		if (exit_code == STILL_ACTIVE) {
+			cout << " Process is still active";
+		}
 
-			break;
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		break;
 	}
 
 	//Echo message back to client
 	sendMessage("Map is Done", clientSocket);
-
-
 
 	//close the socket
 	closesocket(clientSocket);
 
 	//Cleanup winsock
 	WSACleanup();
-
 }
 
 void sendMessage(string message, SOCKET sock)
 {
 	//send the message
 	int sendResult = send(sock, message.c_str(), message.size() + 1, 0);
-
 }
