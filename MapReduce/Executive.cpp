@@ -8,11 +8,11 @@ Project 1
 
 Executive.cpp
 
-Below is Executive.cpp file. 
+Below is Executive.cpp file.
 This file has the main() function.
 It will print to screen a banner message for the user.
 Prompt the user to input three directories: input, temporary, and output.
-It will then create a Workflow class object with these file directories.  
+It will then create a Workflow class object with these file directories.
 
 
 */
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
 	//Start timer
 	boost::timer::auto_cpu_timer t(3, "%w seconds\n");
-	
+
 	//Initiate variables to hold the names of the directory locations
 	string inputFileName{ "Unknown" };
 	string intermediateFileName{ "Unknown" };
@@ -87,12 +87,10 @@ int main(int argc, char* argv[])
 
 	// convert the data to a string
 	string processNumber = argv[0];
-	
+
 
 	// store the process number.
 	string whatToDo = argv[1];
-	
-
 
 	//Banner Message
 	cout << "*************************************************************************************"
@@ -112,20 +110,15 @@ int main(int argc, char* argv[])
 	//Standalone command-line to get user text file input and output directory location
 	cout << "\nInsert the input directory, intermediate directory, and output directory locations."
 		<< "\nInput File Directory: ";
-	inputFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\i1.txt";
-	//std::getline(cin, inputFileName);
+
+	std::getline(cin, inputFileName);
 	cout << "\nIntermediate File Directory: ";
-	intermediateFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\t1.txt";
-	//std::getline(cin, intermediateFileName);
+
+	std::getline(cin, intermediateFileName);
 	cout << "\nOutput File Directory: ";
-	outputFileName = "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-main\\MapReduce\\o1.txt";
-	//std::getline(cin, outputFileName);
+
+	std::getline(cin, outputFileName);
 
 	Workflow workFlow(inputFileName, intermediateFileName, outputFileName, stoi(whatToDo), stoi(processNumber));
-
-	//print to screen seconds to complete program
-	cout << "\nTime to complete program: ";
-	for (long i = 0; i < 100000000; ++i)
-		std::sqrt(123.456L); // burn some time
 
 }//End of Program
