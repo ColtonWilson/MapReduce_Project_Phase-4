@@ -58,6 +58,10 @@ void init_logging()
 
 	logging::add_common_attributes();
 }
+//Initiate variables to hold the names of the directory locations
+const string inputFileName{ "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-two\\shakespeare" };
+const string intermediateFileName{ "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-two\\Results\\Temp" };
+const string outputFileName{ "C:\\Users\\Colton Wilson\\Desktop\\CIS687 OOD\\Project4\\MapReduce_Project_Phase-4-two\\Results\\Output" };
 
 int main(int argc, char* argv[])
 {
@@ -80,10 +84,7 @@ int main(int argc, char* argv[])
 	//Start timer
 	boost::timer::auto_cpu_timer t(3, "%w seconds\n");
 
-	//Initiate variables to hold the names of the directory locations
-	string inputFileName{ "Unknown" };
-	string intermediateFileName{ "Unknown" };
-	string outputFileName{ "Unknown" };
+	
 
 	// convert the data to a string
 	string processNumber = argv[0];
@@ -107,17 +108,8 @@ int main(int argc, char* argv[])
 		<< "\n* Output File Directory: chosen_file.txt                                             *"
 		<< "\n**************************************************************************************";
 	cout.flush();
-	//Standalone command-line to get user text file input and output directory location
-	cout << "\nInsert the input directory, intermediate directory, and output directory locations."
-		<< "\nInput File Directory: ";
 
-	std::getline(cin, inputFileName);
-	cout << "\nIntermediate File Directory: ";
 
-	std::getline(cin, intermediateFileName);
-	cout << "\nOutput File Directory: ";
-
-	std::getline(cin, outputFileName);
 
 	Workflow workFlow(inputFileName, intermediateFileName, outputFileName, stoi(whatToDo), stoi(processNumber));
 
