@@ -59,7 +59,7 @@ If BOOST Unit testing is not active on machine, review guide below on set-up.
 Hard coding locations
 <br>
 ### Map Reduce File
-
+![alt text](https://github.com/ColtonWilson/MapReduce_Project_Phase-4/tree/main/setup/executive01.png)
 
 
 ## Sample Execution & Output
