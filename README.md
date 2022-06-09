@@ -1,4 +1,4 @@
-# MapReduce_Project_Phase-1
+# MapReduce_Project_Phase-4
 # Requirements
 
   * Visual Studio 2022
@@ -55,8 +55,14 @@ If BOOST Unit testing is not active on machine, review guide below on set-up.
 <br>
 -[Online Guide](https://docs.microsoft.com/en-us/visualstudio/test/how-to-use-boost-test-for-cpp?view=vs-2022)
 
+## Set Up
+Hard coding locations
+<br>
+# Map Reduce File
 
-# Sample Execution & Output
+
+
+## Sample Execution & Output
 
 Program will ask for directory locations for an input file, intermediate file, and output file. 
 <br>
